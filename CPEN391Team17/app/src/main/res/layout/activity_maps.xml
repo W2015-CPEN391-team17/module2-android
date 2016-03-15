@@ -22,5 +22,6 @@
         android:layout_margin="16dp"
         android:clickable="true"
         app:backgroundTint="@android:color/white"
+        android:onClick="onFABPressed"
         android:src="@drawable/ic_gps_fixed_black_24dp" />
 </android.support.design.widget.CoordinatorLayout>
