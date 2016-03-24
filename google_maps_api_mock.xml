@@ -1,8 +1,9 @@
 <resources>
     <!--
     Mock file that should contain a unique Google Maps API key.
-    Replace YOUR_KEY_HERE with your key and rename this file to
-    "google_maps_api.xml".
+    Make a copy of this file to
+    "app/src/debug/res/values/google_maps_api.xml"
+    and replace YOUR_KEY_HERE with your key.
     -->
     <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">YOUR_KEY_HERE</string>
 </resources>

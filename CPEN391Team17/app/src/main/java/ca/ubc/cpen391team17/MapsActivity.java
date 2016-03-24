@@ -24,6 +24,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -31,9 +33,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Polyline mTrackingPath;
 
     // Define a tag used for debugging
-    private static final String TAG = "MapsActivity";
+    private static final String MA_TAG = "MapsActivity";
     // App-defined int constant used for handling permissions requests
-    private static final int MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+    private static final int MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+    // Holds the GPS positions for the path that the user takes to the geocache
+    private static ArrayList<Location> mUserPath = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +74,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
-                // Just log the string representation of the location for now
-                Log.v(TAG, location.toString());
+                // Push the location into mUserPath for now
+                Log.v(MA_TAG, location.toString());
+                mUserPath.add(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -88,7 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // Permission has not been granted; request the user to grant permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     0, 0, locationListener);
@@ -119,14 +124,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onFABPressed(View view) {
         if (!mIsTracking) {
             mIsTracking = true;
-            // Add demo PolyLine path on the map
-            mTrackingPath = mMap.addPolyline(new PolylineOptions().geodesic(true)
-                    .color(Color.RED)
-                    .add(new LatLng(-33.866, 151.195))  // Sydney
-                    .add(new LatLng(-18.142, 178.431))  // Fiji
-                    .add(new LatLng(21.291, -157.821))  // Hawaii
-                    .add(new LatLng(37.423, -122.091))  // Mountain View
-            );
+            // Convert the locations in mUserPath to create a PolyLine path on the map
+            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+            for (Location location : mUserPath) {
+                pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+            for (LatLng latLng : pathCoordinates) {
+                polylineOptions.add(latLng);
+            }
+            mTrackingPath = mMap.addPolyline(polylineOptions);
         } else {
             mTrackingPath.remove();
             mIsTracking = false;
@@ -137,7 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+            case MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
