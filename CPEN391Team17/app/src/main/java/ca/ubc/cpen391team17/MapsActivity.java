@@ -7,12 +7,15 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,7 +29,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
@@ -42,8 +45,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean mIsTracking = false;
     // The visual representation of the user's path to the geocache
     private Polyline mTrackingPath = null;
-    // A reference to the floating action button of the app
-    private FloatingActionButton mFAB = null;
     // A reference to the location manager of the app
     private LocationManager mLocationManager = null;
     // A reference to the location listener of the app
@@ -60,8 +61,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         // Initialize and show the floating action button
-        mFAB = new FloatingActionButton(this);
-        mFAB.show();
+        FloatingActionButton fab = new FloatingActionButton(this);
+        fab.show();
+
+        // Initialize the toolbar
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         // As this app requires the accuracy of GPS and may be used in places
         // without a network provider, we only use the GPS provider and not
@@ -108,7 +113,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     0, 0, mLocationListener);
     }
 
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -128,6 +132,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    /**
+     * Show the toolbar menu items.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.action_bar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * Called when an action bar item is pressed and performs the
+     * actions corresponding to the item.
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_upload:
+                // User chose the "Upload" item.
+                // Do nothing for now.
+                return true;
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     /**
