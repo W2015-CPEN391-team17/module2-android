@@ -28,16 +28,26 @@ import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
-    private boolean mIsTracking;
-    private Polyline mTrackingPath;
-
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
     // App-defined int constant used for handling permissions requests
     private static final int MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
-    // Holds the GPS positions for the path that the user takes to the geocache
-    private static ArrayList<Location> mUserPath = new ArrayList<>();
+
+    // Holds the GPS locations for the path that the user takes to the geocache
+    private ArrayList<Location> mUserPathLocations = new ArrayList<>();
+    // GoogleMap field used by the app
+    private GoogleMap mMap;
+    // Flag indicating if the app is currently tracking the user's path the geocache.
+    // On startup we are not tracking the GPS position of the user.
+    private boolean mIsTracking = false;
+    // The visual representation of the user's path to the geocache
+    private Polyline mTrackingPath = null;
+    // A reference to the floating action button of the app
+    private FloatingActionButton mFAB = null;
+    // A reference to the location manager of the app
+    private LocationManager mLocationManager = null;
+    // A reference to the location listener of the app
+    private LocationListener mLocationListener = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +59,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        // Create the GPS floating action button
-        FloatingActionButton fab = new FloatingActionButton(this);
-        fab.show();
-
-        // On startup we are not tracking the GPS position of the user
-        mIsTracking = false;
-        mTrackingPath = null;
+        // Initialize and show the floating action button
+        mFAB = new FloatingActionButton(this);
+        mFAB.show();
 
         // As this app requires the accuracy of GPS and may be used in places
         // without a network provider, we only use the GPS provider and not
@@ -65,18 +71,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // to turn the GPS on if it has been disabled. If the
         // user enables GPS, begin locking onto it immediately.
 
-        // Acquire a reference to the system Location Manager
-        LocationManager locationManager =
+        // Initialize the Location Manager
+        mLocationManager =
                 (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
         // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
+        mLocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
-                // Push the location into mUserPath for now
+                // Push the location into mUserPathLocations for now
                 Log.v(MA_TAG, location.toString());
-                mUserPath.add(location);
+                mUserPathLocations.add(location);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -90,13 +96,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // First, we check if the user has set permission to use the GPS.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            // Permission has not been granted; request the user to grant permission
+            // Permission has not been granted; request the user to grant permission.
+            // If permission will be granted, the onRequestPermissionsResult callback method
+            // will start retrieving the user's location.
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    0, 0, locationListener);
+        // Permission has already been granted; start retrieving the user's location
+        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    0, 0, mLocationListener);
     }
 
 
@@ -121,12 +130,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+    /**
+     * Called when the floating action button (FAB) is pressed.
+     */
     public void onFABPressed(View view) {
+        // Each press of the FAB toggles tracking on and off.
         if (!mIsTracking) {
             mIsTracking = true;
-            // Convert the locations in mUserPath to create a PolyLine path on the map
+            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
             ArrayList<LatLng> pathCoordinates = new ArrayList<>();
-            for (Location location : mUserPath) {
+            for (Location location : mUserPathLocations) {
                 pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
             }
             PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
@@ -148,17 +161,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // If request is cancelled, the result arrays are empty
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission was granted
+                    // Permission was granted; start retrieving the user's location
+                    try {
+                        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                                0, 0, mLocationListener);
+                    } catch (SecurityException e) {
+                        // The app is essentially useless without being able to get the user's
+                        // location. For now, we just finish (quit) the app.
+                        this.finishAffinity();
+                        // If for some reason the app hasn't finished by this point, we rethrow
+                        // the exception.
+                        throw e;
+                    }
                 } else {
                     // Permission denied; Disable the
                     // functionality that depends on this permission.
 
-                    // We just finish the app for now
+                    // The app is essentially useless without being able to get the user's
+                    // location. For now, we just finish (quit) the app.
                     this.finishAffinity();
                 }
-                return;
             }
-            // Other 'case' lines to check for other
+            // We may add other 'case' lines to check for other
             // permissions this app might request
         }
     }
