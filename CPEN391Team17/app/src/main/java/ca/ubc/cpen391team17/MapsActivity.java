@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -28,6 +29,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -49,6 +52,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LocationManager mLocationManager = null;
     // A reference to the location listener of the app
     private LocationListener mLocationListener = null;
+    // The user's last recorded position
+    private Location mLastRecordedLocation = null;
+    // Period between executions for mTimer (in milliseconds)
+    private final long M_TIMER_PERIOD = 5000;
+    // Timer used to add the user's last recorded position to mUserPathLocations every so often
+    private Timer mTimer = new Timer();
+    // TimerTask used by mTimer
+    private TimerTask mTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            if (mLastRecordedLocation != null) {
+                // Record the user's last recorded location into mUserPathLocations
+                Log.v(MA_TAG, "Pushing " +
+                        mLastRecordedLocation.toString() + " into mLastRecordedLocation");
+                mUserPathLocations.add(mLastRecordedLocation);
+            } else {
+                Log.w(MA_TAG, "mLastRecordedLocation == null");
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,9 +108,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onLocationChanged(Location location) {
                 // Called when a new location is found by the network location provider.
 
-                // Push the location into mUserPathLocations for now
+                // Update the user's last recorded location
                 Log.v(MA_TAG, location.toString());
-                mUserPathLocations.add(location);
+                mLastRecordedLocation = location;
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -109,8 +132,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
         // Permission has already been granted; start retrieving the user's location
+        assert mLocationManager != null;
+        assert mLocationListener != null;
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     0, 0, mLocationListener);
+
+        // Initialize the timer
+        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
     }
 
     /**
@@ -179,23 +207,30 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             mTrackingPath = mMap.addPolyline(polylineOptions);
         } else {
-            mTrackingPath.remove();
+            if (mTrackingPath != null) {
+                mTrackingPath.remove();
+            }
             mIsTracking = false;
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+                                           @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
             case MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission was granted; start retrieving the user's location
+                    assert mLocationManager != null;
+                    assert mLocationListener != null;
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
+                        // Initialize the timer
+                        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
                     } catch (SecurityException e) {
                         // The app is essentially useless without being able to get the user's
                         // location. For now, we just finish (quit) the app.
