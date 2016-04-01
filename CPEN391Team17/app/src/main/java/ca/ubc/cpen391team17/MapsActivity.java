@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.os.Handler;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,9 +44,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private ArrayList<Location> mUserPathLocations = new ArrayList<>();
     // GoogleMap field used by the app
     private GoogleMap mMap;
-    // Flag indicating if the app is currently tracking the user's path the geocache.
-    // On startup we are not tracking the GPS position of the user.
-    private boolean mIsTracking = false;
     // The visual representation of the user's path to the geocache
     private Polyline mTrackingPath = null;
     // A reference to the location manager of the app
@@ -57,9 +55,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Period between executions for mTimer (in milliseconds)
     private final long M_TIMER_PERIOD = 5000;
     // Timer used to add the user's last recorded position to mUserPathLocations every so often
-    private Timer mTimer = new Timer();
-    // TimerTask used by mTimer
-    private TimerTask mTimerTask = new TimerTask() {
+    private final Timer mTimer = new Timer();
+    // TimerTask used by mTimer. Contains the actions to execute each time the timer is triggered.
+    private final TimerTask mTimerTask = new TimerTask() {
+        @Override
+        public void run() {
+            updateTrackingPath();
+        }
+    };
+    // Used to update the UI using the UI thread
+    private final Handler mHandler = new Handler();
+    // Runnable used by mHandler
+    private final Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
             if (mLastRecordedLocation != null) {
@@ -67,6 +74,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.v(MA_TAG, "Pushing " +
                         mLastRecordedLocation.toString() + " into mLastRecordedLocation");
                 mUserPathLocations.add(mLastRecordedLocation);
+
+                // Dynamically update the on-screen PolyLine (the user's path to the geocache)
+                if (mTrackingPath != null) {
+                    mTrackingPath.remove();
+                }
+                // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+                ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+                for (Location location : mUserPathLocations) {
+                    pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                }
+                PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+                for (LatLng latLng : pathCoordinates) {
+                    polylineOptions.add(latLng);
+                }
+                mTrackingPath = mMap.addPolyline(polylineOptions);
             } else {
                 Log.w(MA_TAG, "mLastRecordedLocation == null");
             }
@@ -193,27 +215,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Called when the floating action button (FAB) is pressed.
      */
     public void onFABPressed(View view) {
-        // Each press of the FAB toggles tracking on and off.
-        if (!mIsTracking) {
-            mIsTracking = true;
-            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
-            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
-            for (Location location : mUserPathLocations) {
-                pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
-            }
-            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
-            for (LatLng latLng : pathCoordinates) {
-                polylineOptions.add(latLng);
-            }
-            mTrackingPath = mMap.addPolyline(polylineOptions);
-        } else {
-            if (mTrackingPath != null) {
-                mTrackingPath.remove();
-            }
-            mIsTracking = false;
-        }
+        // Do nothing for now
     }
 
+    /**
+     * Update the user's path to the geocache on the screen.
+     */
+    public void updateTrackingPath() {
+        mHandler.post(mRunnable);
+    }
+
+    /**
+     * Called when the user grants or does not grant an Android permission.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String permissions[],
