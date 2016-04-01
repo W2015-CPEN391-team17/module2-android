@@ -25,6 +25,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -45,13 +46,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // GoogleMap field used by the app
     private GoogleMap mMap;
     // The visual representation of the user's path to the geocache
-    private Polyline mTrackingPath = null;
+    private Polyline mTrackingPath;
     // A reference to the location manager of the app
-    private LocationManager mLocationManager = null;
+    private LocationManager mLocationManager;
     // A reference to the location listener of the app
-    private LocationListener mLocationListener = null;
+    private LocationListener mLocationListener;
     // The user's last recorded position
-    private Location mLastRecordedLocation = null;
+    private Location mLastRecordedLocation;
+    // The map marker showing the user's last recorded position
+    private Marker mMarker;
     // Period between executions for mTimer (in milliseconds)
     private final long M_TIMER_PERIOD = 5000;
     // Timer used to add the user's last recorded position to mUserPathLocations every so often
@@ -88,9 +91,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for (LatLng latLng : pathCoordinates) {
                     polylineOptions.add(latLng);
                 }
+                // Update the on-screen path and move the marker.
+                assert mMap != null;
+                assert mMarker != null;
                 mTrackingPath = mMap.addPolyline(polylineOptions);
+                mMarker.remove();
+                Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+                LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                        mostRecentLocation.getLongitude());
+                mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                        .title("User's Last Location"));
             } else {
-                Log.w(MA_TAG, "mLastRecordedLocation == null");
+                Log.w(MA_TAG, "mRunnable.run: mLastRecordedLocation == null");
             }
         }
     };
@@ -180,7 +192,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+        mMarker = mMap.addMarker(new MarkerOptions().position(sydney).title("User's Last Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
@@ -215,7 +227,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Called when the floating action button (FAB) is pressed.
      */
     public void onFABPressed(View view) {
-        // Do nothing for now
+        // Update the marker's location and move the marker, then move the camera to it
+        if (mUserPathLocations != null) {
+            if (!mUserPathLocations.isEmpty()) {
+                Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+                LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                        mostRecentLocation.getLongitude());
+                if (mMap != null) {
+                    if (mMarker != null) {
+                        mMarker.remove();
+                    }
+                    mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                            .title("User's Last Location"));
+                    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarkerPosition));
+                } else {
+                    Log.w(MA_TAG, "onFABPressed: mMap == null");
+                }
+            } else {
+                Log.w(MA_TAG, "onFABPressed: mUserPathLocations.isEmpty() == true");
+            }
+        } else {
+            Log.w(MA_TAG, "onFABPressed: mUserPathLocations == null");
+        }
     }
 
     /**
