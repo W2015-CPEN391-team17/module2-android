@@ -30,4 +30,14 @@ public class Geocache2Activity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Called when the back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Finish the activity
+        finish();
+    }
 }

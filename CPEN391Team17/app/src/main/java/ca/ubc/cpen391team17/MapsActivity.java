@@ -41,8 +41,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // App-defined int constant used for handling permissions requests
     private static final int MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
 
-    // Holds the GPS locations for the path that the user takes to the geocache
-    private ArrayList<Location> mUserPathLocations = new ArrayList<>();
+    // Holds the GPS locations for the path that the user takes to the geocache.
+    // Get a reference to the application-wide AppData.
+    private ArrayList<Location> mUserPathLocations =
+            AppData.getInstance().getMapsActivityPathLocations();
     // GoogleMap field used by the app
     private GoogleMap mMap;
     // The visual representation of the user's path to the geocache
@@ -77,6 +79,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.v(MA_TAG, "Pushing " +
                         mLastRecordedLocation.toString() + " into mLastRecordedLocation");
                 mUserPathLocations.add(mLastRecordedLocation);
+                for (Location location : mUserPathLocations) {
+                    Log.v(MA_TAG, "mRunnable: " + location.toString());
+                }
+
 
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)
                 if (mTrackingPath != null) {
@@ -298,5 +304,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // We may add other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    /**
+     * Called when the back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Finish the activity
+        finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // Manually destroy async objects
+        mTimer.cancel();
+        mTimer.purge();
+        mHandler.removeCallbacks(mRunnable);
     }
 }

@@ -92,4 +92,14 @@ public class MainMenuActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    /**
+     * Called when the back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        // Quit the app since we will not show the startup screen again
+        this.finishAffinity();
+    }
 }
