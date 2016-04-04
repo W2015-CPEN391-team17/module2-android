@@ -30,12 +30,88 @@
 
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps">
+            android:label="@string/title_activity_geocache1" />
+        <activity
+            android:name=".StartUpActivity"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainMenuActivity"
+            android:label="@string/title_activity_main_menu"
+            android:parentActivityName=".StartUpActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.StartUpActivity" />
+        </activity>
+        <activity
+            android:name=".Geocache1Activity"
+            android:label="@string/title_activity_geocache1"
+            android:parentActivityName=".MainMenuActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.MainMenuActivity" />
+        </activity>
+        <activity
+            android:name=".Geocache2Activity"
+            android:label="@string/title_activity_geocache2"
+            android:parentActivityName=".MainMenuActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.MainMenuActivity" />
+        </activity>
+        <activity
+            android:name=".Geocache3Activity"
+            android:label="@string/title_activity_geocache3"
+            android:parentActivityName=".MainMenuActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.MainMenuActivity" />
+        </activity>
+        <activity
+            android:name=".Geocache4Activity"
+            android:label="@string/title_activity_geocache4"
+            android:parentActivityName=".MainMenuActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.MainMenuActivity" />
+        </activity>
+        <activity
+            android:name=".Maps2Activity"
+            android:label="@string/title_activity_geocache2"
+            android:parentActivityName=".Geocache2Activity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.Geocache2Activity" />
+        </activity>
+        <activity
+            android:name=".Maps3Activity"
+            android:label="@string/title_activity_geocache3"
+            android:parentActivityName=".Geocache3Activity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.Geocache3Activity" />
+        </activity>
+        <activity
+            android:name=".Maps4Activity"
+            android:label="@string/title_activity_geocache4"
+            android:parentActivityName=".Geocache4Activity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="ca.ubc.cpen391team17.Geocache4Activity" />
         </activity>
     </application>
 
