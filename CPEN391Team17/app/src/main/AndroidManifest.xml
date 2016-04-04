@@ -8,6 +8,8 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application
         android:allowBackup="true"
@@ -112,6 +114,11 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="ca.ubc.cpen391team17.Geocache4Activity" />
+        </activity>
+        <activity
+            android:name=".BluetoothActivity"
+            android:label="@string/title_activity_bluetooth"
+            android:theme="@style/AppTheme">
         </activity>
     </application>
 
