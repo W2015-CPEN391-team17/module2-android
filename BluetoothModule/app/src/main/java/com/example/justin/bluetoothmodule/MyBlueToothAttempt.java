@@ -308,24 +308,27 @@ public class MyBlueToothAttempt extends ActionBarActivity
             foo = ReadFromBTDevice();
         }
         System.out.println(foo);
-        String send = "";
-        send += (char) 0x01;
-        while(true) {
+        String send = "!";
+        do {
             WriteToBTDevice(send);
-        }
+        }while(!ReadFromBTDevice().contains("@"));
+        System.out.println("Hi\n");
+
+        WriteToBTDevice("#This is the phone string?");
+
     }
 
     // This function write a line of text (in the form of an array of bytes)
     // to the Bluetooth device and then sends the string “\r\n”
     // (required by the bluetooth dongle)
     public void WriteToBTDevice (String message) {
-        String s = new String("\r\n") ;
+        //String s = new String("\r\n") ;
         byte[] msgBuffer = message.getBytes();
-        byte[] newline = s.getBytes();
+        //byte[] newline = s.getBytes();
 
         try {
             mmOutStream.write(msgBuffer) ;
-            mmOutStream.write(newline) ;
+            //mmOutStream.write(newline) ;
         } catch (IOException e) { }
     }
 
