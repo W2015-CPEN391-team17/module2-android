@@ -1,4 +1,4 @@
-package com.example.timothychoy.myfirstapp;
+package ca.ubc.cpen391team17;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +12,7 @@ public class Geocache1Activity extends AppCompatActivity {
 
     /* placeholder for map activity */
     public void openMap1(View view) {
-        Intent intent = new Intent(this, Map1Activity.class);
+        Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
