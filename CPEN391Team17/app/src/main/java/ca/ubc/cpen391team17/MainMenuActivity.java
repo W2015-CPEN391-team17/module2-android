@@ -11,7 +11,16 @@ import android.view.MenuItem;
 import android.content.Intent;
 import android.widget.CheckBox;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
+
 public class MainMenuActivity extends AppCompatActivity {
+    private static final String CHECKBOXES_FILENAME = "checkboxes.dat";
 
     /** Opens the hints for geocache 1 **/
     public void openHint1(View view) {
@@ -63,6 +72,37 @@ public class MainMenuActivity extends AppCompatActivity {
             Intent intent = new Intent(this, Geocache4Activity.class);
             startActivity(intent);
         }
+    }
+
+    /** Save the state of the checkboxes to internal storage */
+    private void saveCheckboxState() {
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream(CHECKBOXES_FILENAME);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(checkboxesState);
+            objectOutputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Load the state of the checkboxes from internal storage */
+    private void loadCheckboxState() {
+        try {
+            FileInputStream fileInputStream = new FileInputStream(CHECKBOXES_FILENAME);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            this.checkboxesState = (CheckboxesState) objectInputSteam.readObject();
+            objectInputStream.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (StreamCorruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
