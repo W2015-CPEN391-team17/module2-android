@@ -1,5 +1,6 @@
 package ca.ubc.cpen391team17;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -11,13 +12,17 @@ import android.view.MenuItem;
 import android.content.Intent;
 import android.widget.CheckBox;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.io.StreamCorruptedException;
+
+import ca.ubc.cpen391team17.CheckboxesState;
 
 public class MainMenuActivity extends AppCompatActivity {
     private static final String CHECKBOXES_FILENAME = "checkboxes.dat";
@@ -75,21 +80,6 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
-    /** Class used to store the state of the checkboxes */
-    class CheckboxesState {
-        public boolean checkbox1;
-        public boolean checkbox2;
-        public boolean checkbox3;
-        public boolean checkbox4;
-
-        public CheckboxesState() {
-            checkbox1 = false;
-            checkbox2 = false;
-            checkbox3 = false;
-            checkbox4 = false;
-        }
-    }
-
     /** Save the state of the checkboxes to internal storage */
     public void saveCheckboxesState(View view) {
         /* update checkboxesState */
@@ -98,13 +88,20 @@ public class MainMenuActivity extends AppCompatActivity {
         checkboxesState.checkbox3 = ((CheckBox) findViewById(R.id.checkbox3)).isChecked();
         checkboxesState.checkbox4 = ((CheckBox) findViewById(R.id.checkbox4)).isChecked();
 
+        File checkboxesStateFile = new File(CHECKBOXES_FILENAME);
+        if (!checkboxesStateFile.exists()) {
+
+        }
+
         /* save checkboxesState to a file */
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(CHECKBOXES_FILENAME);
+            System.out.println("Writing*******");
+            FileOutputStream fileOutputStream = openFileOutput(CHECKBOXES_FILENAME, Context.MODE_PRIVATE);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this.checkboxesState);
             objectOutputStream.close();
             fileOutputStream.close();
+            System.out.println("Supposedly done writing********");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -112,9 +109,14 @@ public class MainMenuActivity extends AppCompatActivity {
 
     /** Load the state of the checkboxes from internal storage */
     public void loadCheckboxesState() {
+        File checkboxesStateFile = new File(CHECKBOXES_FILENAME);
+        /* only try to read the data if the file already exists */
+        if (!checkboxesStateFile.exists()) {
+            return;
+        }
         try {
             /* load checkboxesState from a file */
-            FileInputStream fileInputStream = new FileInputStream(CHECKBOXES_FILENAME);
+            FileInputStream fileInputStream = openFileInput(CHECKBOXES_FILENAME);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             this.checkboxesState = (CheckboxesState) objectInputStream.readObject();
             objectInputStream.close();
@@ -126,9 +128,7 @@ public class MainMenuActivity extends AppCompatActivity {
             ((CheckBox) findViewById(R.id.checkbox3)).setChecked(checkboxesState.checkbox3);
             ((CheckBox) findViewById(R.id.checkbox4)).setChecked(checkboxesState.checkbox4);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
