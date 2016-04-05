@@ -346,12 +346,29 @@ public class BluetoothActivity extends AppCompatActivity {
         do {
             WriteToBTDevice(send);
         }while(!ReadFromBTDevice().contains("@"));
-        System.out.println("Hi\n");
 
-        WriteToBTDevice("#This is the phone string?");
+        //TODO trim the data here with trimLocations(lat, lon, latrange, lonrange);
+        WriteToBTDevice(generateLocationsString());
+    }
 
-        //TODO trim the data here
-        //something like trimLocations(lat, lon, latrange, lonrange);
+    /**
+     * Generate and return a string representation of locations
+     * In this format
+     * #0.000,0.000;0.000;0.000;0.000;0.000;?
+     * which can be interpreted as
+     * #lat1,lon1;lat2,lon2;lat3,lon3;?
+     */
+    public String generateLocationsString() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("#");
+        for(Location location : this.locations) {
+            stringBuilder.append(location.getLatitude());
+            stringBuilder.append(",");
+            stringBuilder.append(location.getLongitude());
+            stringBuilder.append(";");
+        }
+        stringBuilder.append("?");
+        return stringBuilder.toString();
     }
 
     /**
