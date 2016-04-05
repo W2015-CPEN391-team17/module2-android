@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -21,6 +22,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.os.Handler;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -114,6 +117,26 @@ public class Maps3Activity extends AppCompatActivity implements OnMapReadyCallba
         }
     };
 
+    private void checkGooglePlayServices() {
+        // Check if the user has the latest latest Google Play Services, and if not, prompt the
+        // user to update it.
+        GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = googleApiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            Dialog dialog = googleApiAvailability.getErrorDialog(this, resultCode, 0);
+            if (dialog != null) {
+                //This dialog will help the user update to the latest GooglePlayServices
+                dialog.show();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkGooglePlayServices();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +146,8 @@ public class Maps3Activity extends AppCompatActivity implements OnMapReadyCallba
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        checkGooglePlayServices();
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);
