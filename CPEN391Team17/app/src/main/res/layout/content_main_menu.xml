@@ -77,28 +77,31 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="83dp"
-        android:id="@+id/checkbox1"/>
+        android:id="@+id/checkbox1"
+        android:onClick="saveCheckboxesState" />
 
     <CheckBox
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="133dp"
-        android:id="@+id/checkbox2"/>
+        android:id="@+id/checkbox2"
+        android:onClick="saveCheckboxesState" />
 
     <CheckBox
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="183dp"
-        android:id="@+id/checkbox3"/>
+        android:id="@+id/checkbox3"
+        android:onClick="saveCheckboxesState" />
 
     <CheckBox
         android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="233dp"
-        android:id="@+id/checkbox4"/>
-
+        android:id="@+id/checkbox4"
+        android:onClick="saveCheckboxesState" />
 
 </RelativeLayout>
