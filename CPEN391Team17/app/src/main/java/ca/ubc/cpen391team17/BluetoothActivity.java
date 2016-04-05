@@ -349,6 +349,20 @@ public class BluetoothActivity extends AppCompatActivity {
 
         //TODO trim the data here with trimLocations(lat, lon, latrange, lonrange);
         WriteToBTDevice(generateLocationsString());
+
+        Float lat;
+        Float lon;
+        Float latrange;
+        Float lonrange;
+
+        String[] string_data = foo.split(",");
+
+        lat = Float.valueOf(string_data[1]);
+        lon = Float.valueOf(string_data[2]);
+        latrange = Float.valueOf(string_data[3]);
+        lonrange = Float.valueOf(string_data[4]);
+
+        trimLocations(lat, lon, latrange, lonrange);
     }
 
     /**
@@ -379,12 +393,12 @@ public class BluetoothActivity extends AppCompatActivity {
      * @param latrange the onscreen latitude range from the DE2's location
      * @param lonrange the onscreen longitude range from the DE2's location
      */
-    public void trimLocations(Double lat, Double lon, Double latrange, Double lonrange) {
+    public void trimLocations(Float lat, Float lon, Float latrange, Float lonrange) {
         // minimum and maximum latitudes and longitudes that will appear on the Nios screen
-        Double minLat = lat - latrange;
-        Double maxLat = lat + latrange;
-        Double minLon = lon - lonrange;
-        Double maxLon = lon + lonrange;
+        Float minLat = lat - latrange;
+        Float maxLat = lat + latrange;
+        Float minLon = lon - lonrange;
+        Float maxLon = lon + lonrange;
 
         // index in locations of the first location that will be retained
         int startingLocationsIndex = 0;
