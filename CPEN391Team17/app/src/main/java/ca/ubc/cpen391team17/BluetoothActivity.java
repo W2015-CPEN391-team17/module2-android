@@ -405,7 +405,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // loop through each location in locations in reverse order
         // to determine the value of startingLocationsIndex
-        for(int i = locations.size()-1; i > 0; i--) {
+        for(int i = locations.size()-1; i >= 0; i--) {
             Location location = locations.get(i);
             if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
                     location.getLongitude() < minLon || location.getLongitude() > maxLon) {
