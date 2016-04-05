@@ -337,25 +337,23 @@ public class BluetoothActivity extends AppCompatActivity {
             mmOutStream = mmSocket.getOutputStream();
         } catch (IOException e) { }
         // TEST ON CONNECT
-        String foo = "";
-        while(foo.equals("")) {
-            foo = ReadFromBTDevice();
-        }
-        System.out.println(foo);
-        String send = "!";
+        String latLongs = "";
+        do{
+            latLongs = ReadFromBTDevice();
+        }while(latLongs.equals(""));
+
         do {
-            WriteToBTDevice(send);
+            WriteToBTDevice("!");
         }while(!ReadFromBTDevice().contains("@"));
 
-        //TODO trim the data here with trimLocations(lat, lon, latrange, lonrange);
-        WriteToBTDevice(generateLocationsString());
+        System.out.println(latLongs);
 
         float lat;
         float lon;
         float latrange;
         float lonrange;
 
-        String[] string_data = foo.split(",");
+        String[] string_data = latLongs.split(",");
 
         lat = Float.valueOf(string_data[1]);
         lon = Float.valueOf(string_data[2]);
@@ -363,6 +361,8 @@ public class BluetoothActivity extends AppCompatActivity {
         lonrange = Float.valueOf(string_data[4]);
 
         trimLocations(lat, lon, latrange, lonrange);
+
+        WriteToBTDevice(generateLocationsString());
     }
 
     /**
