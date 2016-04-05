@@ -26,11 +26,11 @@
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/geocache1"
+        android:text="@string/thechief"
         android:textColor="#246e9d"
         android:background="#ffffff"
         android:id="@+id/button1"
-        android:onClick="openHint1"
+        android:onClick="openHints"
         android:layout_marginTop="80dp" />
 
     <Button
@@ -39,11 +39,11 @@
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/geocache2"
+        android:text="@string/brandy"
         android:textColor="#246e9d"
         android:background="#ffffff"
         android:id="@+id/button2"
-        android:onClick="openHint2"
+        android:onClick="openHints"
         android:layout_marginTop="130dp" />
 
     <Button
@@ -52,11 +52,11 @@
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/geocache3"
+        android:text="@string/park"
         android:textColor="#246e9d"
         android:background="#ffffff"
         android:id="@+id/button3"
-        android:onClick="openHint3"
+        android:onClick="openHints"
         android:layout_marginTop="180dp" />
 
     <Button
@@ -65,11 +65,11 @@
         android:layout_height="40dp"
         android:layout_alignParentLeft="true"
         android:layout_centerHorizontal="true"
-        android:text="@string/geocache4"
+        android:text="@string/mcld"
         android:textColor="#246e9d"
         android:background="#ffffff"
         android:id="@+id/button4"
-        android:onClick="openHint4"
+        android:onClick="openHints"
         android:layout_marginTop="230dp" />
 
     <CheckBox

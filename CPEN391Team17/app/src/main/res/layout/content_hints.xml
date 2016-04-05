@@ -9,45 +9,46 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="ca.ubc.cpen391team17.Geocache3Activity"
-    tools:showIn="@layout/activity_geocache3">
+    tools:context="ca.ubc.cpen391team17.HintsActivity"
+    tools:showIn="@layout/activity_hints">
 
     <TextView
+        android:id="@+id/title_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/title_activity_geocache3"
         android:textSize="25dp"
         android:textColor="#246e9d"
         android:layout_marginTop="20dp"/>
 
     <TextView
+        android:id="@+id/clue1_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clue 1"
         android:layout_marginTop="80dp"/>
 
     <TextView
+        android:id="@+id/clue2_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clue 2"
         android:layout_marginTop="130dp"/>
 
     <TextView
+        android:id="@+id/clue3_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clue 3"
         android:layout_marginTop="180dp"/>
 
     <TextView
+        android:id="@+id/clue4_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clue 4"
         android:layout_marginTop="230dp"/>
 
     <TextView
+        android:id="@+id/clue5_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="clue 5"
         android:layout_marginTop="280dp"/>
 
 </RelativeLayout>
+

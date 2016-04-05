@@ -229,7 +229,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_upload:
                 // User chose the "Upload" item.
                 // Start the Bluetooth Activity.
-                startActivity(new Intent(this, BluetoothActivity.class));
+                Intent intent = new Intent(this, BluetoothActivity.class);
+                ArrayList<Location> locations = mUserPathLocations;
+                intent.putExtra("location_list", locations);
+                startActivity(intent);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
