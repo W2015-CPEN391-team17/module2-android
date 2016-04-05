@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.ContextCompat;
@@ -74,6 +75,9 @@ public class BluetoothActivity extends AppCompatActivity {
     // indicates if we are connected to a device
     private boolean Connected = false;
 
+    // list of locations that we get from the previous activity
+    ArrayList<Location> locations;
+
     private AdapterView.OnItemClickListener mPairedClickedHandler = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
             // position = row number that user touched
@@ -116,8 +120,7 @@ public class BluetoothActivity extends AppCompatActivity {
         // get the context for the application
         context = getApplicationContext();
 
-        ArrayList<String> locations = (ArrayList<String>) getIntent().getSerializableExtra("location_list");
-        locations.toString();
+        locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
 
         // Check if the user has set the necessary permissions to use Bluetooth.
@@ -347,6 +350,20 @@ public class BluetoothActivity extends AppCompatActivity {
 
         WriteToBTDevice("#This is the phone string?");
 
+        //TODO trim the data here
+        //something like trimLocations(lat, lon, latrange, lonrange);
+    }
+
+    /**
+     * Remove any points from the locations ArrayList that appear before the last time that the path
+     * crosses the edge of the screen
+     * @param lat
+     * @param lon
+     * @param latrange
+     * @param lonrange
+     */
+    public void trimLocations(Double lat, Double lon, Double latrange, Double lonrange) {
+        //TODO
     }
 
     // This function write a line of text (in the form of an array of bytes)
