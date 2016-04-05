@@ -88,20 +88,15 @@ public class MainMenuActivity extends AppCompatActivity {
         checkboxesState.checkbox3 = ((CheckBox) findViewById(R.id.checkbox3)).isChecked();
         checkboxesState.checkbox4 = ((CheckBox) findViewById(R.id.checkbox4)).isChecked();
 
-        File checkboxesStateFile = new File(CHECKBOXES_FILENAME);
-        if (!checkboxesStateFile.exists()) {
-
-        }
-
         /* save checkboxesState to a file */
         try {
-            System.out.println("Writing*******");
-            FileOutputStream fileOutputStream = openFileOutput(CHECKBOXES_FILENAME, Context.MODE_PRIVATE);
+            File checkboxesStateFile = new File(this.getApplicationContext().getFilesDir(),
+                    CHECKBOXES_FILENAME);
+            FileOutputStream fileOutputStream = new FileOutputStream(checkboxesStateFile);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this.checkboxesState);
             objectOutputStream.close();
-            fileOutputStream.close();
-            System.out.println("Supposedly done writing********");
+            //TODO fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,7 +104,8 @@ public class MainMenuActivity extends AppCompatActivity {
 
     /** Load the state of the checkboxes from internal storage */
     public void loadCheckboxesState() {
-        File checkboxesStateFile = new File(CHECKBOXES_FILENAME);
+        File checkboxesStateFile = new File(this.getApplicationContext().getFilesDir(),
+                CHECKBOXES_FILENAME);
         /* only try to read the data if the file already exists */
         if (!checkboxesStateFile.exists()) {
             return;
