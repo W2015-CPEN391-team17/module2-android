@@ -6,5 +6,4 @@
 .DS_Store
 /build
 /captures
-/app/src/debug/res/values/google_maps_api.xml
 /app/proguard-rules.pro
