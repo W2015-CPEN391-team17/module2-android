@@ -9,59 +9,80 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.content.Intent;
+import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.TextView;
 
 public class MainMenuActivity extends AppCompatActivity {
 
-    /** Opens the hints for geocache 1 **/
-    public void openHint1(View view) {
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox1);
-        if(checkBox.isChecked()) {
-            Intent intent = new Intent(this, MapsActivity.class);
-            startActivity(intent);
-        }
-        else {
-            Intent intent = new Intent(this, Geocache1Activity.class);
-            startActivity(intent);
-        }
-    }
+    /* Handler for hints and checkboxes for main menu */
+    public void openHints(View view) {
 
-    /** Opens the hints for geocache 2 **/
-    public void openHint2(View view) {
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox2);
-        if(checkBox.isChecked()) {
-            Intent intent = new Intent(this, Maps2Activity.class);
-            startActivity(intent);
-        }
-        else {
-            Intent intent = new Intent(this, Geocache2Activity.class);
-            startActivity(intent);
-        }
-    }
+        CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox1);
+        Intent mapIntent = new Intent(this, MapsActivity.class);
+        Intent hintIntent = new Intent(this, HintsActivity.class);
+        String message = "string not initialized";
+        String message1 = "string not initialized";
+        String message2 = "string not initialized";
+        String message3 = "string not initialized";
+        String message4 = "string not initialized";
+        String message5 = "string not initialized";
+        Bundle extras = new Bundle();
 
-    /** Opens the hints for geocache 3 **/
-    public void openHint3(View view) {
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox3);
-        if(checkBox.isChecked()) {
-            Intent intent = new Intent(this, Maps3Activity.class);
-            startActivity(intent);
+        switch (view.getId()) {
+            case R.id.button1:
+                checkBox = (CheckBox) findViewById(R.id.checkbox1);
+                message = getResources().getString(R.string.thechief);
+                message1 = getResources().getString(R.string.thechief_clue_1);
+                message2 = getResources().getString(R.string.thechief_clue_2);
+                message3 = getResources().getString(R.string.thechief_clue_3);
+                message4 = getResources().getString(R.string.thechief_clue_4);
+                message5 = getResources().getString(R.string.thechief_clue_5);
+                break;
+            case R.id.button2:
+                checkBox = (CheckBox) findViewById(R.id.checkbox2);
+                message = getResources().getString(R.string.brandy);
+                message1 = getResources().getString(R.string.brandy_clue_1);
+                message2 = getResources().getString(R.string.brandy_clue_2);
+                message3 = getResources().getString(R.string.brandy_clue_3);
+                message4 = getResources().getString(R.string.brandy_clue_4);
+                message5 = getResources().getString(R.string.brandy_clue_5);
+                break;
+            case R.id.button3:
+                checkBox = (CheckBox) findViewById(R.id.checkbox3);
+                message = getResources().getString(R.string.park);
+                message1 = getResources().getString(R.string.park_clue_1);
+                message2 = getResources().getString(R.string.park_clue_2);
+                message3 = getResources().getString(R.string.park_clue_3);
+                message4 = getResources().getString(R.string.park_clue_4);
+                message5 = getResources().getString(R.string.park_clue_5);
+                break;
+            case R.id.button4:
+                checkBox = (CheckBox) findViewById(R.id.checkbox4);
+                message = getResources().getString(R.string.mcld);
+                message1 = getResources().getString(R.string.mcld_clue_1);
+                message2 = getResources().getString(R.string.mcld_clue_2);
+                message3 = getResources().getString(R.string.mcld_clue_3);
+                message4 = getResources().getString(R.string.mcld_clue_4);
+                message5 = getResources().getString(R.string.mcld_clue_5);
+                break;
+            default:
+                break;
         }
-        else {
-            Intent intent = new Intent(this, Geocache3Activity.class);
-            startActivity(intent);
-        }
-    }
 
-    /** Opens the hints for geocache 4 **/
-    public void openHint4(View view) {
-        final CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox4);
+        extras.putString("title_key", message);
+        extras.putString("clue1_key", message1);
+        extras.putString("clue2_key", message2);
+        extras.putString("clue3_key", message3);
+        extras.putString("clue4_key", message4);
+        extras.putString("clue5_key", message5);
+
         if(checkBox.isChecked()) {
-            Intent intent = new Intent(this, Maps4Activity.class);
-            startActivity(intent);
+            startActivity(mapIntent);
         }
         else {
-            Intent intent = new Intent(this, Geocache4Activity.class);
-            startActivity(intent);
+            hintIntent.putExtras(extras);
+            startActivity(hintIntent);
         }
     }
 

@@ -116,6 +116,10 @@ public class BluetoothActivity extends AppCompatActivity {
         // get the context for the application
         context = getApplicationContext();
 
+        ArrayList<String> locations = (ArrayList<String>) getIntent().getSerializableExtra("location_list");
+        locations.toString();
+        System.out.println(locations);
+
         // Check if the user has set the necessary permissions to use Bluetooth.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
                 != PackageManager.PERMISSION_GRANTED) {
