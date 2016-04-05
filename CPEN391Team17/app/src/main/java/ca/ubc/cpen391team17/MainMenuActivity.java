@@ -1,5 +1,6 @@
 package ca.ubc.cpen391team17;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,7 +14,21 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
+
+import ca.ubc.cpen391team17.CheckboxesState;
+
 public class MainMenuActivity extends AppCompatActivity {
+    private static final String CHECKBOXES_FILENAME = "checkboxes.dat";
+    private CheckboxesState checkboxesState = new CheckboxesState();
 
     /* Handler for hints and checkboxes for main menu */
     public void openHints(View view) {
@@ -86,10 +101,61 @@ public class MainMenuActivity extends AppCompatActivity {
         }
     }
 
+    /** Save the state of the checkboxes to internal storage */
+    public void saveCheckboxesState(View view) {
+        /* update checkboxesState */
+        checkboxesState.checkbox1 = ((CheckBox) findViewById(R.id.checkbox1)).isChecked();
+        checkboxesState.checkbox2 = ((CheckBox) findViewById(R.id.checkbox2)).isChecked();
+        checkboxesState.checkbox3 = ((CheckBox) findViewById(R.id.checkbox3)).isChecked();
+        checkboxesState.checkbox4 = ((CheckBox) findViewById(R.id.checkbox4)).isChecked();
+
+        /* save checkboxesState to a file */
+        try {
+            File checkboxesStateFile = new File(this.getApplicationContext().getFilesDir(),
+                    CHECKBOXES_FILENAME);
+            FileOutputStream fileOutputStream = new FileOutputStream(checkboxesStateFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(this.checkboxesState);
+            objectOutputStream.close();
+            //TODO fileOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /** Load the state of the checkboxes from internal storage */
+    public void loadCheckboxesState() {
+        File checkboxesStateFile = new File(this.getApplicationContext().getFilesDir(),
+                CHECKBOXES_FILENAME);
+        /* only try to read the data if the file already exists */
+        if (!checkboxesStateFile.exists()) {
+            return;
+        }
+        try {
+            /* load checkboxesState from a file */
+            FileInputStream fileInputStream = openFileInput(CHECKBOXES_FILENAME);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            this.checkboxesState = (CheckboxesState) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+
+            /* update the checkboxes */
+            ((CheckBox) findViewById(R.id.checkbox1)).setChecked(checkboxesState.checkbox1);
+            ((CheckBox) findViewById(R.id.checkbox2)).setChecked(checkboxesState.checkbox2);
+            ((CheckBox) findViewById(R.id.checkbox3)).setChecked(checkboxesState.checkbox3);
+            ((CheckBox) findViewById(R.id.checkbox4)).setChecked(checkboxesState.checkbox4);
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_menu);
+        loadCheckboxesState();
     }
 
     @Override

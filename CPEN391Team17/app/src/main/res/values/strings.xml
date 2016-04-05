@@ -15,28 +15,28 @@
     <string name="title_activity_bluetooth">BluetoothActivity</string>
     <string name="title_activity_my">MyActivity</string>
 
-    <string name="thechief_clue_1">Clue 1</string>
-    <string name="thechief_clue_2">Clue 2</string>
-    <string name="thechief_clue_3">Clue 3</string>
-    <string name="thechief_clue_4">Clue 4</string>
-    <string name="thechief_clue_5">Clue 5</string>
+    <string name="thechief_clue_1">Important Landmarks:</string>
+    <string name="thechief_clue_2">The tallest tree.</string>
+    <string name="thechief_clue_3">The wooden post.</string>
+    <string name="thechief_clue_4">The three ferns.</string>
+    <string name="thechief_clue_5">The smoothest granite.</string>
 
-    <string name="park_clue_1">Clue 1</string>
-    <string name="park_clue_2">Clue 2</string>
-    <string name="park_clue_3">Clue 3</string>
-    <string name="park_clue_4">Clue 4</string>
-    <string name="park_clue_5">Clue 5</string>
+    <string name="park_clue_1">You will be lost if you miss these:</string>
+    <string name="park_clue_2">Two redwoods.</string>
+    <string name="park_clue_3">A-frame.</string>
+    <string name="park_clue_4">The fence.</string>
+    <string name="park_clue_5">The log that bridges the gap.</string>
 
-    <string name="mcld_clue_1">Clue 1</string>
-    <string name="mcld_clue_2">Clue 2</string>
-    <string name="mcld_clue_3">Clue 3</string>
-    <string name="mcld_clue_4">Clue 4</string>
-    <string name="mcld_clue_5">Clue 5</string>
+    <string name="mcld_clue_1">Do not wander far:</string>
+    <string name="mcld_clue_2">The clock tower.</string>
+    <string name="mcld_clue_3">The giant book.</string>
+    <string name="mcld_clue_4">The periodic table.</string>
+    <string name="mcld_clue_5">The big "E".</string>
 
-    <string name="brandy_clue_1">Clue 1</string>
-    <string name="brandy_clue_2">Clue 2</string>
-    <string name="brandy_clue_3">Clue 3</string>
-    <string name="brandy_clue_4">Clue 4</string>
-    <string name="brandy_clue_5">Clue 5</string>
+    <string name="brandy_clue_1">These are going to be useful:</string>
+    <string name="brandy_clue_2">The lookout.</string>
+    <string name="brandy_clue_3">Streams to the cliff.</string>
+    <string name="brandy_clue_4">The rope down.</string>
+    <string name="brandy_clue_5">The path not taken.</string>
 
 </resources>
