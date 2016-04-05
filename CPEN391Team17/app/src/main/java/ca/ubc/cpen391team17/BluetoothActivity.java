@@ -357,13 +357,35 @@ public class BluetoothActivity extends AppCompatActivity {
     /**
      * Remove any points from the locations ArrayList that appear before the last time that the path
      * crosses the edge of the screen
-     * @param lat
-     * @param lon
-     * @param latrange
-     * @param lonrange
+     * @param lat the latitude of the DE2's location
+     * @param lon the longitude of the DE2's location
+     * @param latrange the onscreen latitude range from the DE2's location
+     * @param lonrange the onscreen longitude range from the DE2's location
      */
     public void trimLocations(Double lat, Double lon, Double latrange, Double lonrange) {
-        //TODO
+        // minimum and maximum latitudes and longitudes that will appear on the Nios screen
+        Double minLat = lat - latrange;
+        Double maxLat = lat + latrange;
+        Double minLon = lon - lonrange;
+        Double maxLon = lon + lonrange;
+
+        // index in locations of the first location that will be retained
+        int startingLocationsIndex = 0;
+
+        // loop through each location in locations in reverse order
+        // to determine the value of startingLocationsIndex
+        for(int i = locations.size()-1; i > 0; i--) {
+            Location location = locations.get(i);
+            if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
+                    location.getLongitude() < minLon || location.getLongitude() > maxLon) {
+                startingLocationsIndex = i - 1;
+            }
+        }
+
+        // remove all entries that were originally before that index
+        for(int i = 0; i < startingLocationsIndex; i++) {
+            locations.remove(0);
+        }
     }
 
     // This function write a line of text (in the form of an array of bytes)
