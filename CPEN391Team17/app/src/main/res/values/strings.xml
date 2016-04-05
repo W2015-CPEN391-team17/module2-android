@@ -4,17 +4,39 @@
     <string name="title_activity_main_menu">MainMenuActivity</string>
     <string name="app_name">Geocache</string>
     <string name="action_settings">Settings</string>
-    <string name="geocache1">The Chief</string>
-    <string name="geocache2">Brandywine Falls</string>
-    <string name="geocache3">Lighthouse Park</string>
-    <string name="geocache4">The Westcoast Trail</string>
-    <string name="title_activity_geocache1">THE CHIEF</string>
-    <string name="title_activity_geocache2">BRANDYWINE FALLS</string>
-    <string name="title_activity_geocache3">LIGHTHOUSE PARK</string>
-    <string name="title_activity_geocache4">THE WESTCOAST TRAIL</string>
-    <string name="title_activity_map1">Map 1</string>
-    <string name="title_activity_map2">Map 2</string>
+
+    <string name="thechief">THE CHIEF</string>
+    <string name="brandy">BRANDYWINE FALLS</string>
+    <string name="park">LIGHTHOUSE PARK</string>
+    <string name="mcld">MCLEOD</string>
+
+    <string name="title_activity_hints">Hints</string>
+    <string name="title_activity_map">Map</string>
+    <string name="title_activity_bluetooth">BluetoothActivity</string>
     <string name="title_activity_my">MyActivity</string>
-    <string name="title_activity_maps3">Maps3Activity</string>
-    <string name="title_activity_maps4">Maps4Activity</string>
+
+    <string name="thechief_clue_1">Clue 1</string>
+    <string name="thechief_clue_2">Clue 2</string>
+    <string name="thechief_clue_3">Clue 3</string>
+    <string name="thechief_clue_4">Clue 4</string>
+    <string name="thechief_clue_5">Clue 5</string>
+
+    <string name="park_clue_1">Clue 1</string>
+    <string name="park_clue_2">Clue 2</string>
+    <string name="park_clue_3">Clue 3</string>
+    <string name="park_clue_4">Clue 4</string>
+    <string name="park_clue_5">Clue 5</string>
+
+    <string name="mcld_clue_1">Clue 1</string>
+    <string name="mcld_clue_2">Clue 2</string>
+    <string name="mcld_clue_3">Clue 3</string>
+    <string name="mcld_clue_4">Clue 4</string>
+    <string name="mcld_clue_5">Clue 5</string>
+
+    <string name="brandy_clue_1">Clue 1</string>
+    <string name="brandy_clue_2">Clue 2</string>
+    <string name="brandy_clue_3">Clue 3</string>
+    <string name="brandy_clue_4">Clue 4</string>
+    <string name="brandy_clue_5">Clue 5</string>
+
 </resources>

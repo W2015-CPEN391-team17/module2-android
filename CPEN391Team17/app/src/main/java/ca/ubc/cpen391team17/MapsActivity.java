@@ -2,6 +2,7 @@ package ca.ubc.cpen391team17;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -41,8 +42,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // App-defined int constant used for handling permissions requests
     private static final int MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
 
-    // Holds the GPS locations for the path that the user takes to the geocache
-    private ArrayList<Location> mUserPathLocations = new ArrayList<>();
+    // Holds the GPS locations for the path that the user takes to the geocache.
+    // Get a reference to the application-wide AppData.
+    private ArrayList<Location> mUserPathLocations =
+            AppData.getInstance().getMapsActivityPathLocations();
     // GoogleMap field used by the app
     private GoogleMap mMap;
     // The visual representation of the user's path to the geocache
@@ -77,30 +80,38 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.v(MA_TAG, "Pushing " +
                         mLastRecordedLocation.toString() + " into mLastRecordedLocation");
                 mUserPathLocations.add(mLastRecordedLocation);
+                for (Location location : mUserPathLocations) {
+                    Log.v(MA_TAG, "mRunnable: " + location.toString());
+                }
+
 
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)
                 if (mTrackingPath != null) {
                     mTrackingPath.remove();
                 }
-                // Convert the locations in mUserPathLocations to create a PolyLine path on the map
-                ArrayList<LatLng> pathCoordinates = new ArrayList<>();
-                for (Location location : mUserPathLocations) {
-                    pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
-                }
-                PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
-                for (LatLng latLng : pathCoordinates) {
-                    polylineOptions.add(latLng);
-                }
                 // Update the on-screen path and move the marker.
-                assert mMap != null;
-                assert mMarker != null;
-                mTrackingPath = mMap.addPolyline(polylineOptions);
-                mMarker.remove();
-                Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
-                LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
-                        mostRecentLocation.getLongitude());
-                mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
-                        .title("User's Last Location"));
+                if (mMap != null) {
+                    // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+                    ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+                    for (Location location : mUserPathLocations) {
+                        pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                    }
+                    PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+                    for (LatLng latLng : pathCoordinates) {
+                        polylineOptions.add(latLng);
+                    }
+                    mTrackingPath = mMap.addPolyline(polylineOptions);
+                    if (mMarker != null) {
+                        mMarker.remove();
+                    }
+                    Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+                    LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                            mostRecentLocation.getLongitude());
+                    mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                            .title("User's Last Location"));
+                } else {
+                    Log.w(MA_TAG, "mRunnable.run: mMap == null");
+                }
             } else {
                 Log.w(MA_TAG, "mRunnable.run: mLastRecordedLocation == null");
             }
@@ -165,9 +176,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
+        if (mLocationManager == null) {
+            // The app is essentially useless without being able to get the user's
+            // location. For now, we just finish (quit) the app.
+            this.finishAffinity();
+        }
         // Permission has already been granted; start retrieving the user's location
-        assert mLocationManager != null;
-        assert mLocationListener != null;
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     0, 0, mLocationListener);
 
@@ -214,7 +228,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         switch (item.getItemId()) {
             case R.id.action_upload:
                 // User chose the "Upload" item.
-                // Do nothing for now.
+                // Start the Bluetooth Activity.
+                Intent intent = new Intent(this, BluetoothActivity.class);
+                ArrayList<Location> locations = mUserPathLocations;
+                intent.putExtra("location_list", locations);
+                startActivity(intent);
                 return true;
             default:
                 // If we got here, the user's action was not recognized.
@@ -271,8 +289,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permission was granted; start retrieving the user's location
-                    assert mLocationManager != null;
-                    assert mLocationListener != null;
+                    if (mLocationManager == null) {
+                        // The app is essentially useless without being able to get the user's
+                        // location. For now, we just finish (quit) the app.
+                        this.finishAffinity();
+                    }
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
@@ -298,5 +319,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             // We may add other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+
+    /**
+     * Called when the back button is pressed.
+     */
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Finish the activity
+        finish();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // Manually destroy async objects
+        mTimer.cancel();
+        mTimer.purge();
+        mHandler.removeCallbacks(mRunnable);
     }
 }

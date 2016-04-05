@@ -1,5 +1,6 @@
-package com.example.justin.bluetoothmodule;
+package ca.ubc.cpen391team17;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -7,9 +8,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -23,8 +26,10 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.UUID;
 
-public class MyBlueToothAttempt extends ActionBarActivity
-{
+/**
+ * Data transfer to a geocache using Bluetooth.
+ */
+public class BluetoothActivity extends AppCompatActivity {
     // A constant that we use to determine if our request to turn on bluetooth worked
     private final static int REQUEST_ENABLE_BT = 1;
     // A handle to the tablet’s bluetooth adapter
@@ -32,19 +37,23 @@ public class MyBlueToothAttempt extends ActionBarActivity
     // get the context for the application. We use this with things like "toast" popups
     private Context context;
 
+    // App-defined int constant used for handling permissions requests
+    private static final int BL_PERMISSIONS_REQUEST_BLUETOOTH = 0;
+    private static final int BL_PERMISSIONS_REQUEST_BLUETOOTH_ADMIN = 1;
+
     // two instances of our new custom array adaptor
-    private MyCustomArrayAdaptor myPairedArrayAdapter;
-    private MyCustomArrayAdaptor myDiscoveredArrayAdapter;
+    private BluetoothArrayAdaptor myPairedArrayAdapter;
+    private BluetoothArrayAdaptor myDiscoveredArrayAdapter;
 
     private BroadcastReceiver mReceiver ; // handle to BroadCastReceiver object
     // an Array/List to hold discovered Bluetooth devices
     // A bluetooth device contains device Name and Mac Address information which
     // we want to display to the user in a List View so they can chose a device
     // to connect to. We also need that info to actually connect to the device
-    private ArrayList < BluetoothDevice > Discovereddevices = new ArrayList <BluetoothDevice> ( ) ;
+    private ArrayList <BluetoothDevice> Discovereddevices = new ArrayList <BluetoothDevice> ( ) ;
     // an Array/List to hold string details of the Bluetooth devices, name + MAC address etc.
     // this is displayed in the listview for the user to chose
-    private ArrayList < String > myDiscoveredDevicesStringArray = new ArrayList < String > ( ) ;
+    private ArrayList< String > myDiscoveredDevicesStringArray = new ArrayList < String > ( ) ;
 
     // we want to display all paired devices to the user in a ListView so they can chose a device
     private ArrayList < BluetoothDevice > Paireddevices =
@@ -102,13 +111,35 @@ public class MyBlueToothAttempt extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate (savedInstanceState);
-        setContentView(R.layout.activity_my_blue_tooth_attempt);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_bluetooth);
         // get the context for the application
         context = getApplicationContext();
 
-        // This call returns a handle to the one bluetooth device within your Android device
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        ArrayList<String> locations = (ArrayList<String>) getIntent().getSerializableExtra("location_list");
+        locations.toString();
+        System.out.println(locations);
+
+        // Check if the user has set the necessary permissions to use Bluetooth.
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission has not been granted; just exit the app for now
+            Toast.makeText(context, "Please enable Bluetooth permissions",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        } else {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Permission has not been granted; just exit the app for now
+                Toast.makeText(context, "Please enable Bluetooth permissions",
+                        Toast.LENGTH_LONG).show();
+                finish();
+            } else {
+                // This call returns a handle to the one bluetooth device within your Android device
+                mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            }
+        }
+
         // check to see if your android device even has a bluetooth device !!!!,
         if (mBluetoothAdapter == null) {
             Toast toast = Toast.makeText(context, "NO BLUETOOTH DAWG", Toast.LENGTH_LONG);
@@ -119,9 +150,9 @@ public class MyBlueToothAttempt extends ActionBarActivity
 
         // create the new adaptors passing important params, such
         // as context, android row style and the array of strings to display
-        myPairedArrayAdapter = new MyCustomArrayAdaptor(this,
+        myPairedArrayAdapter = new BluetoothArrayAdaptor(this,
                 android.R.layout.simple_list_item_1, myPairedDevicesStringArray);
-        myDiscoveredArrayAdapter = new MyCustomArrayAdaptor(this,
+        myDiscoveredArrayAdapter = new BluetoothArrayAdaptor(this,
                 android.R.layout.simple_list_item_1, myDiscoveredDevicesStringArray);
 
         // get handles to the two list views in the Activity main layout
@@ -352,5 +383,14 @@ public class MyBlueToothAttempt extends ActionBarActivity
             return new String("-- No Response --");
         }
         return s;
+    }
+
+    // Called when the back button is pressed.
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        // Finish the activity
+        finish();
     }
 }
