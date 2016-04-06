@@ -60,6 +60,9 @@ public class BluetoothActivity extends AppCompatActivity {
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
 
+    // maximum number of points that the DE2 component can handle
+    public static final int MAX_LOCATIONS_SIZE = 1000;
+
     // list of locations that we get from the previous activity
     public List<Location> locations;
 
@@ -349,7 +352,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // loop through each location in locations in reverse order
         // to determine the value of startingLocationsIndex
-        for(int i = locationsList.size()-1; i >= 0; i--) {
+        for(int i = locationsList.size()-1; i > 0; i--) {
             Location location = locationsList.get(i);
             if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
                     location.getLongitude() < minLon || location.getLongitude() > maxLon) {
@@ -363,6 +366,9 @@ public class BluetoothActivity extends AppCompatActivity {
             locationsList.remove(0);
         }
 
+        if (locationsList.size() > MAX_LOCATIONS_SIZE) {
+            //TODO only include last MAX_LOCATIONS_SIZE locations
+        }
         return locationsList;
     }
 
