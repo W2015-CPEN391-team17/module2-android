@@ -66,7 +66,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     // Timer used to add the user's last recorded position to mUserPathLocations every so often
     private final Timer mTimer = new Timer();
     // TimerTask used by mTimer. Contains the actions to execute each time the timer is triggered.
-    private final TimerTask mTimerTask = new TimerTask() {
+    private TimerTask mTimerTask = new TimerTask() {
         @Override
         public void run() {
             updateTrackingPath();
@@ -179,7 +179,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // Called when a new location is found by the network location provider.
 
                 // Update the user's last recorded location
-                Log.v(MA_TAG, location.toString());
+                //Log.v(MA_TAG, location.toString());
                 mLastRecordedLocation = location;
             }
 
@@ -365,5 +365,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mTimer.cancel();
         mTimer.purge();
         mHandler.removeCallbacks(mRunnable);
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+
+        mTimerTask.cancel();
+        mTimer.purge();
+    }
+
+    @Override
+    public void onRestart(){
+        super.onRestart();
+
+        mTimerTask = new TimerTask() {
+            @Override
+            public void run() {
+                updateTrackingPath();
+            }
+        };
+        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
     }
 }
