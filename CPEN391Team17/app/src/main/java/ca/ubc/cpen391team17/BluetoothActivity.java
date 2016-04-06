@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,10 +59,15 @@ public class BluetoothActivity extends AppCompatActivity {
     private BluetoothSocket mmSocket = null;
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
+
     // Connection flag
     boolean connected = false;
+
+    // maximum number of points that the DE2 component can handle
+    public static final int MAX_LOCATIONS_SIZE = 1000;
+
     // list of locations that we get from the previous activity
-    ArrayList<Location> locations;
+    public List<Location> locations;
 
     private AdapterView.OnItemClickListener mPairedClickedHandler = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -308,12 +314,30 @@ public class BluetoothActivity extends AppCompatActivity {
         latrange = Float.valueOf(string_data[2]);
         lonrange = Float.valueOf(string_data[3]);
 
-        trimLocations(lat, lon, latrange, lonrange);
+        this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 
-        String str = generateLocationsString();
+
+        String str = generateLocationsString(locations);
         do {
             WriteToBTDevice(str);
         }while(!ReadFromBTDevice().contains("="));
+
+        //WriteToBTDevice(generateLocationsString());
+
+        //Thread workerThread = new Thread(new Runnable() {
+          //  public void run() {
+//        System.out.println("In thread");
+//        WriteToBTDevice(generateLocationsString(this.locations));
+            //}
+        //});
+
+        //workerThread.start();
+        //try {
+          //  workerThread.join();
+        //}catch (InterruptedException e){
+          //  System.out.println(e.toString())1;
+        //}
+
 
         closeConnection(); // Disconnect after writing
     }
@@ -325,10 +349,10 @@ public class BluetoothActivity extends AppCompatActivity {
      * which can be interpreted as
      * #lat1,lon1;lat2,lon2;lat3,lon3;?
      */
-    public String generateLocationsString() {
+    public static String generateLocationsString(List<Location> locationsList) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("#");
-        for(Location location : this.locations) {
+        for(Location location : locationsList) {
             stringBuilder.append(location.getLatitude());
             stringBuilder.append(",");
             stringBuilder.append(location.getLongitude());
@@ -340,13 +364,16 @@ public class BluetoothActivity extends AppCompatActivity {
 
     /**
      * Remove any points from the locations ArrayList that appear before the last time that the path
-     * crosses the edge of the screen
+     * crosses the edge of the screen. Also, the returned list will have the last MAX_LOCATIONS_SIZE
+     * entries from the input if the input list has more than MAX_LOCATIONS_SIZE entries.
+     * @param locationsList input list
      * @param lat the latitude of the DE2's location
      * @param lon the longitude of the DE2's location
      * @param latrange the onscreen latitude range from the DE2's location
      * @param lonrange the onscreen longitude range from the DE2's location
      */
-    public void trimLocations(float lat, float lon, float latrange, float lonrange) {
+    public static List<Location> trimLocations(List<Location> locationsList, float lat, float lon,
+                                               float latrange, float lonrange) {
         // minimum and maximum latitudes and longitudes that will appear on the Nios screen
         float minLat = lat - latrange;
         float maxLat = lat + latrange;
@@ -358,18 +385,27 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // loop through each location in locations in reverse order
         // to determine the value of startingLocationsIndex
-        for(int i = locations.size()-1; i >= 0; i--) {
-            Location location = locations.get(i);
+        for(int i = locationsList.size()-1; i >= 1; i--) {
+            Location location = locationsList.get(i);
             if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
                     location.getLongitude() < minLon || location.getLongitude() > maxLon) {
-                startingLocationsIndex = i - 1;
+                startingLocationsIndex = i+1; //the previous one we accessed
             }
         }
 
         // remove all entries that were originally before that index
         for(int i = 0; i < startingLocationsIndex; i++) {
-            locations.remove(0);
+            locationsList.remove(0);
         }
+
+        if (locationsList.size() > MAX_LOCATIONS_SIZE) {
+            // only include last MAX_LOCATIONS_SIZE locations
+            final int number_to_remove = locationsList.size() - MAX_LOCATIONS_SIZE;
+            for(int i = 0; i < number_to_remove; i++) {
+                locationsList.remove(0);
+            }
+        }
+        return locationsList;
     }
 
     // Write to BT
