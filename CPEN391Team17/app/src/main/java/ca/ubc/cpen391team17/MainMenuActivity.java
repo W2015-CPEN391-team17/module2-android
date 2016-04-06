@@ -1,30 +1,19 @@
 package ca.ubc.cpen391team17;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.content.Intent;
-import android.widget.Button;
+import android.view.View;
 import android.widget.CheckBox;
-import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.StreamCorruptedException;
-
-import ca.ubc.cpen391team17.CheckboxesState;
 
 public class MainMenuActivity extends AppCompatActivity {
     private static final String CHECKBOXES_FILENAME = "checkboxes.dat";
@@ -93,6 +82,8 @@ public class MainMenuActivity extends AppCompatActivity {
         extras.putString("clue5_key", message5);
 
         if(checkBox.isChecked()) {
+            // Start MapsActivity to display the saved path to the geocache (if it exists)
+            mapIntent.putExtra("show_saved_path", true);
             startActivity(mapIntent);
         }
         else {

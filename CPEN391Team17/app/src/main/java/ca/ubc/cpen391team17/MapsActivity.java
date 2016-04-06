@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -44,6 +45,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final String MA_TAG = "MapsActivity";
     // App-defined int constant used for handling permissions requests
     private static final int MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 0;
+
+    // Flag that determines whether or not this activity is in Show Saved Path mode
+    private boolean mShowSavedPath = false;
+    // Used by Show Saved Path mode to hold the loaded LatLng pairs based on the latitude and
+    // longitude data from the saved Locations
+    private List<LatLng> mLoadedLatLngs = new ArrayList<>();
 
     // Holds the GPS locations for the path that the user takes to the geocache.
     // Get a reference to the application-wide AppData.
@@ -86,7 +93,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 for (Location location : mUserPathLocations) {
                     Log.v(MA_TAG, "mRunnable: " + location.toString());
                 }
-
 
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)
                 if (mTrackingPath != null) {
@@ -151,6 +157,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        // Check for the latest version of Google Play Services. Needed to use the necessary
+        // Google services.
         checkGooglePlayServices();
 
         // Initialize and show the floating action button
@@ -160,6 +168,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Initialize the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Check if MapsActivity should run in Show Saved Path mode. If so we don't have
+        // to initialize the fields needed for GPS tracking. The onMapReady callback method
+        // will eventually be used to display the saved path.
+        mShowSavedPath = getIntent().getBooleanExtra("show_saved_path", false);
+        if (mShowSavedPath) {
+            return;
+        }
 
         // As this app requires the accuracy of GPS and may be used in places
         // without a network provider, we only use the GPS provider and not
@@ -200,18 +216,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
-        }
-        if (mLocationManager == null) {
-            // The app is essentially useless without being able to get the user's
-            // location. For now, we just finish (quit) the app.
-            this.finishAffinity();
-        }
-        // Permission has already been granted; start retrieving the user's location
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+        } else {
+            if (mLocationManager == null) {
+                // The app is essentially useless without being able to get the user's
+                // location. For now, we just finish (quit) the app.
+                this.finishAffinity();
+            }
+            // Permission has already been granted; start retrieving the user's location
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                     0, 0, mLocationListener);
 
-        // Initialize the timer
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+            // Initialize the timer
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        }
+    }
+
+    // TODO: Load real persistent data instead of mock data
+    private void loadSavedPath() {
+        // This method should only be run when in Show Saved Path mode
+        if (!mShowSavedPath) {
+            throw new IllegalStateException();
+        }
+        // Create mock data
+        mLoadedLatLngs.add(new LatLng(-33.866, 151.195));  // Sydney
+        mLoadedLatLngs.add(new LatLng(-18.142, 178.431));  // Fiji
+        mLoadedLatLngs.add(new LatLng(21.291, -157.821));  // Hawaii
+        mLoadedLatLngs.add(new LatLng(37.423, -122.091));  // Mountain View
     }
 
     /**
@@ -229,10 +259,56 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
+        // Display the saved path right away if in Show Saved Path mode
+        if (mShowSavedPath) {
+            showSavedPath();
+            return;
+        }
+
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMarker = mMap.addMarker(new MarkerOptions().position(sydney).title("User's Last Location"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    private void showSavedPath() {
+        // This method should only be run when in Show Saved Path mode
+        if (!mShowSavedPath) {
+            throw new IllegalStateException();
+        }
+
+        // Load saved path data
+        loadSavedPath();
+
+        // Update the on-screen path and move the marker.
+        if (mMap != null) {
+            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+            for (LatLng coord : mLoadedLatLngs) {
+                pathCoordinates.add(coord);
+            }
+            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+            for (LatLng latLng : pathCoordinates) {
+                polylineOptions.add(latLng);
+            }
+            mTrackingPath = mMap.addPolyline(polylineOptions);
+            if (mMarker != null) {
+                mMarker.remove();
+            }
+            // TODO: we just place a destination marker at the destination for now.
+            // This may have to be change or be done in a more robust way in the future.
+            if (!mLoadedLatLngs.isEmpty()) {
+                mMarker = mMap.addMarker(new MarkerOptions()
+                        .position(mLoadedLatLngs.get(mLoadedLatLngs.size() - 1))
+                        .title("User's Last Location"));
+                mMap.moveCamera(CameraUpdateFactory
+                        .newLatLng(mLoadedLatLngs.get(mLoadedLatLngs.size() - 1)));
+            } else {
+                Log.w(MA_TAG, "no Locations loaded; not showing the destination marker");
+            }
+        } else {
+            Log.w(MA_TAG, "mRunnable.run: mMap == null");
+        }
     }
 
     /**
@@ -270,6 +346,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * Called when the floating action button (FAB) is pressed.
      */
     public void onFABPressed(View view) {
+        if (mShowSavedPath) {
+            // Move the camera to the last recorded LatLng in mLoadedLatLngs
+            if (!mLoadedLatLngs.isEmpty()) {
+                mMap.moveCamera(CameraUpdateFactory
+                        .newLatLng(mLoadedLatLngs.get(mLoadedLatLngs.size() - 1)));
+            } else {
+                Log.w(MA_TAG, "mLoadedLatLngs is empty");
+            }
+        }
         // Update the marker's location and move the marker, then move the camera to it
         if (mUserPathLocations != null) {
             if (!mUserPathLocations.isEmpty()) {
