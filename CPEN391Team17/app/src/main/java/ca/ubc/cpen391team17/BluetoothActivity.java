@@ -298,10 +298,10 @@ public class BluetoothActivity extends AppCompatActivity {
 
         String[] string_data = latLongs.split(",");
 
-        lat = Float.valueOf(string_data[1]);
-        lon = Float.valueOf(string_data[2]);
-        latrange = Float.valueOf(string_data[3]);
-        lonrange = Float.valueOf(string_data[4]);
+        lat = Float.valueOf(string_data[0]);
+        lon = Float.valueOf(string_data[1]);
+        latrange = Float.valueOf(string_data[2]);
+        lonrange = Float.valueOf(string_data[3]);
 
         trimLocations(lat, lon, latrange, lonrange);
 
