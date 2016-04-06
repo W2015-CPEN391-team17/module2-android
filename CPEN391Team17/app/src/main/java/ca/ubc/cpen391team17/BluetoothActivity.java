@@ -19,8 +19,11 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -316,6 +319,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 
+        saveLocations(this.locations, "name"); //TODO name param
 
         String str = generateLocationsString(locations);
         do {
@@ -406,6 +410,24 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
         return locationsList;
+    }
+
+    /**
+     * Save the locationsList to a file in internal storage with name TODO
+     * @param locationsList
+     */
+    public void saveLocations(List<Location> locationsList, String name) {
+        String filename = "macleodexample.dat"; //TODO should use name param somehow
+        try {
+            File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
+                    filename);
+            FileOutputStream fileOutputStream = new FileOutputStream(locationsListFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(locationsList);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // Write to BT
