@@ -286,7 +286,6 @@ public class BluetoothActivity extends AppCompatActivity {
         System.out.println("Failed sockets");}
 
         String latLongs;
-        System.out.println("HI");
         do{
             latLongs = ReadFromBTDevice();
         }while(!latLongs.contains("#"));
@@ -296,14 +295,6 @@ public class BluetoothActivity extends AppCompatActivity {
         }
 
         latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
-
-        System.out.println(latLongs);
-
-        do {
-            WriteToBTDevice("!");
-        }while(!ReadFromBTDevice().contains("@"));
-
-
 
         float lat;
         float lon;
@@ -319,21 +310,10 @@ public class BluetoothActivity extends AppCompatActivity {
 
         trimLocations(lat, lon, latrange, lonrange);
 
-        //WriteToBTDevice(generateLocationsString());
-
-        //Thread workerThread = new Thread(new Runnable() {
-          //  public void run() {
-        System.out.println("In thread");
-        WriteToBTDevice(generateLocationsString());
-            //}
-        //});
-
-        //workerThread.start();
-        //try {
-          //  workerThread.join();
-        //}catch (InterruptedException e){
-          //  System.out.println(e.toString())1;
-        //}
+        String str = generateLocationsString();
+        do {
+            WriteToBTDevice(str);
+        }while(!ReadFromBTDevice().contains("="));
 
         closeConnection(); // Disconnect after writing
     }
@@ -394,14 +374,14 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Write to BT
     public void WriteToBTDevice (String message) {
-        String s = new String("\r\n") ;
+        //String s = new String("\r\n") ;
         byte[] msgBuffer = message.getBytes();
-        byte[] newline = s.getBytes();
+        //byte[] newline = s.getBytes();
 
         try {
             mmOutStream.write(msgBuffer) ;
-            mmOutStream.write(newline) ;
-            mmOutStream.flush();
+            //mmOutStream.write(newline) ;
+            //mmOutStream.flush();
         } catch (IOException e) { System.out.println("Out failed");}
     }
 
@@ -411,7 +391,7 @@ public class BluetoothActivity extends AppCompatActivity {
         String s = new String("");
 
         try { // Read from the InputStream using polling and timeout
-            for (int i = 0; i < 2000; i++) { // try to read for 2 seconds max
+            for (int i = 0; i < 1000; i++) { // try to read for 2 seconds max
                 SystemClock.sleep(10);
                 if (mmInStream.available() > 0) {
                     if ((c = (byte) mmInStream.read()) != '\r') {// '\r' terminator
