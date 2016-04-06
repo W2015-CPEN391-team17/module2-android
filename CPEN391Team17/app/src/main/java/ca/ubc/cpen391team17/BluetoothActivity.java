@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -60,7 +61,7 @@ public class BluetoothActivity extends AppCompatActivity {
     public static OutputStream mmOutStream = null;
 
     // list of locations that we get from the previous activity
-    ArrayList<Location> locations;
+    public List<Location> locations;
 
     private AdapterView.OnItemClickListener mPairedClickedHandler = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -299,9 +300,9 @@ public class BluetoothActivity extends AppCompatActivity {
         latrange = Float.valueOf(string_data[3]);
         lonrange = Float.valueOf(string_data[4]);
 
-        trimLocations(lat, lon, latrange, lonrange);
+        this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 
-        WriteToBTDevice(generateLocationsString());
+        WriteToBTDevice(generateLocationsString(this.locations));
 
         closeConnection(); // Disconnect after writing
     }
@@ -313,10 +314,10 @@ public class BluetoothActivity extends AppCompatActivity {
      * which can be interpreted as
      * #lat1,lon1;lat2,lon2;lat3,lon3;?
      */
-    public String generateLocationsString() {
+    public static String generateLocationsString(List<Location> locationsList) {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("#");
-        for(Location location : this.locations) {
+        for(Location location : locationsList) {
             stringBuilder.append(location.getLatitude());
             stringBuilder.append(",");
             stringBuilder.append(location.getLongitude());
@@ -329,12 +330,14 @@ public class BluetoothActivity extends AppCompatActivity {
     /**
      * Remove any points from the locations ArrayList that appear before the last time that the path
      * crosses the edge of the screen
+     * @param locationsList
      * @param lat the latitude of the DE2's location
      * @param lon the longitude of the DE2's location
      * @param latrange the onscreen latitude range from the DE2's location
      * @param lonrange the onscreen longitude range from the DE2's location
      */
-    public void trimLocations(float lat, float lon, float latrange, float lonrange) {
+    public static List<Location> trimLocations(List<Location> locationsList, float lat, float lon,
+                                               float latrange, float lonrange) {
         // minimum and maximum latitudes and longitudes that will appear on the Nios screen
         float minLat = lat - latrange;
         float maxLat = lat + latrange;
@@ -346,18 +349,21 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // loop through each location in locations in reverse order
         // to determine the value of startingLocationsIndex
-        for(int i = locations.size()-1; i >= 0; i--) {
-            Location location = locations.get(i);
+        for(int i = locationsList.size()-1; i >= 0; i--) {
+            Location location = locationsList.get(i);
             if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
                     location.getLongitude() < minLon || location.getLongitude() > maxLon) {
                 startingLocationsIndex = i - 1;
             }
         }
+        System.out.println("startingLocationsIndex " + startingLocationsIndex);
 
         // remove all entries that were originally before that index
         for(int i = 0; i < startingLocationsIndex; i++) {
-            locations.remove(0);
+            locationsList.remove(0);
         }
+
+        return locationsList;
     }
 
     // Write to BT
