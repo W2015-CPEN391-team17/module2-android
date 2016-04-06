@@ -265,14 +265,16 @@ public class BluetoothActivity extends AppCompatActivity {
         mBluetoothAdapter.cancelDiscovery();
         try {
             mmSocket.connect();
+            System.out.println("Connected");
             Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
+            connected = true;
+            CommunicateWithDE2();
         }
         catch (IOException connectException) {
             Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
-        connected = true;
-        CommunicateWithDE2();
+
     }
 
     // Gets IO streams and sends data back and forth
@@ -280,9 +282,11 @@ public class BluetoothActivity extends AppCompatActivity {
         try {
             mmInStream = mmSocket.getInputStream();
             mmOutStream = mmSocket.getOutputStream();
-        } catch (IOException e) { }
+        } catch (IOException e) {
+        System.out.println("Failed sockets");}
 
-        String latLongs = "";
+        String latLongs;
+        System.out.println("HI");
         do{
             latLongs = ReadFromBTDevice();
         }while(!latLongs.contains("#"));
@@ -293,12 +297,13 @@ public class BluetoothActivity extends AppCompatActivity {
 
         latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
 
+        System.out.println(latLongs);
 
         do {
             WriteToBTDevice("!");
         }while(!ReadFromBTDevice().contains("@"));
 
-        System.out.println(latLongs);
+
 
         float lat;
         float lon;
@@ -314,7 +319,21 @@ public class BluetoothActivity extends AppCompatActivity {
 
         trimLocations(lat, lon, latrange, lonrange);
 
+        //WriteToBTDevice(generateLocationsString());
+
+        //Thread workerThread = new Thread(new Runnable() {
+          //  public void run() {
+        System.out.println("In thread");
         WriteToBTDevice(generateLocationsString());
+            //}
+        //});
+
+        //workerThread.start();
+        //try {
+          //  workerThread.join();
+        //}catch (InterruptedException e){
+          //  System.out.println(e.toString())1;
+        //}
 
         closeConnection(); // Disconnect after writing
     }
@@ -375,14 +394,15 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Write to BT
     public void WriteToBTDevice (String message) {
-        //String s = new String("\r\n") ;
+        String s = new String("\r\n") ;
         byte[] msgBuffer = message.getBytes();
-        //byte[] newline = s.getBytes();
+        byte[] newline = s.getBytes();
 
         try {
             mmOutStream.write(msgBuffer) ;
-            //mmOutStream.write(newline) ;
-        } catch (IOException e) { }
+            mmOutStream.write(newline) ;
+            mmOutStream.flush();
+        } catch (IOException e) { System.out.println("Out failed");}
     }
 
     // Read from BT
