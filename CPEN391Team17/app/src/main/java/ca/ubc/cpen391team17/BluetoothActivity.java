@@ -59,7 +59,8 @@ public class BluetoothActivity extends AppCompatActivity {
     private BluetoothSocket mmSocket = null;
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
-
+    // Connection flag
+    boolean connected = false;
     // list of locations that we get from the previous activity
     public List<Location> locations;
 
@@ -68,6 +69,8 @@ public class BluetoothActivity extends AppCompatActivity {
             String text = "Connecting to: " +
                     PairedDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+
+            if (connected) closeConnection(); // Disconnect before connecting again
 
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(PairedDevices.get(position)) ;
@@ -86,6 +89,8 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
+            if (connected) closeConnection(); // Disconnect before connecting again
+            
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(DiscoveredDevices.get(position)) ;
             ConnectToSerialBlueToothDevice();
@@ -267,6 +272,7 @@ public class BluetoothActivity extends AppCompatActivity {
             Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
+        connected = true;
         CommunicateWithDE2();
     }
 
@@ -280,7 +286,14 @@ public class BluetoothActivity extends AppCompatActivity {
         String latLongs = "";
         do{
             latLongs = ReadFromBTDevice();
-        }while(latLongs.equals(""));
+        }while(!latLongs.contains("#"));
+
+        while(!latLongs.contains("?")){
+            latLongs += ReadFromBTDevice();
+        }
+
+        latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
+
 
         do {
             WriteToBTDevice("!");
@@ -295,10 +308,10 @@ public class BluetoothActivity extends AppCompatActivity {
 
         String[] string_data = latLongs.split(",");
 
-        lat = Float.valueOf(string_data[1]);
-        lon = Float.valueOf(string_data[2]);
-        latrange = Float.valueOf(string_data[3]);
-        lonrange = Float.valueOf(string_data[4]);
+        lat = Float.valueOf(string_data[0]);
+        lon = Float.valueOf(string_data[1]);
+        latrange = Float.valueOf(string_data[2]);
+        lonrange = Float.valueOf(string_data[3]);
 
         this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 

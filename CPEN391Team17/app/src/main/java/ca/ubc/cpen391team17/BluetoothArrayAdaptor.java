@@ -19,7 +19,6 @@ public class BluetoothArrayAdaptor extends ArrayAdapter<String> {
     private ArrayList<String> theStringArray;
 
     public final int numRows = 500 ;
-    private boolean [] RowValidity = new boolean [numRows];
 
     // constructor
     public BluetoothArrayAdaptor(Context _context,
@@ -32,7 +31,6 @@ public class BluetoothArrayAdaptor extends ArrayAdapter<String> {
         // save the context and the array of strings we were given
         context = _context;
         theStringArray = _theStringArray;
-        clearValidity ();
     }
 
     @Override
@@ -46,23 +44,7 @@ public class BluetoothArrayAdaptor extends ArrayAdapter<String> {
         icon.setVisibility (View.VISIBLE);
         TextView label = (TextView) row.findViewById( R.id.BTdeviceText);
         label.setText (theStringArray.get(position));
-        icon = (ImageView) row.findViewById (R.id.Selected);
-        icon.setImageResource (R.drawable.redcross);
-        icon.setVisibility (View.VISIBLE);
-
-        if(RowValidity [position] == false)
-            icon.setImageResource (R.drawable.redcross);
-        else
-            icon.setImageResource (R.drawable.greentick);
-
 
         return row;
-    }
-
-    public void setValid (int position) { RowValidity [position] = true ; }
-    public void setInValid (int position) { RowValidity [position] = false ; }
-    public void clearValidity () {
-        for(int i = 0; i < numRows; i ++)
-            RowValidity[i] = false ;
     }
 }

@@ -19,10 +19,4 @@
         android:layout_centerVertical="true"
         android:paddingLeft="16dp"
         android:textSize="17sp" />
-    <ImageView
-        android:id="@+id/Selected"
-        android:layout_width="15pt"
-        android:layout_height="15pt"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true" />
 </RelativeLayout>
