@@ -285,7 +285,14 @@ public class BluetoothActivity extends AppCompatActivity {
         String latLongs = "";
         do{
             latLongs = ReadFromBTDevice();
-        }while(latLongs.equals(""));
+        }while(!latLongs.contains("#"));
+
+        while(!latLongs.contains("?")){
+            latLongs += ReadFromBTDevice();
+        }
+
+        latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
+
 
         do {
             WriteToBTDevice("!");
