@@ -259,8 +259,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 0, 0, mLocationListener);
 
-        // Initialize the timer
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+
+        // check if we have a file to read the location data from
+        String exampleFilename = "macleodexample.dat";
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
+                exampleFilename);
+        if (locationsListFile.exists()) {
+            loadLocationsList(exampleFilename);
+        } else {
+            // Initialize the timer if we did not load data from a file
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        }
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
