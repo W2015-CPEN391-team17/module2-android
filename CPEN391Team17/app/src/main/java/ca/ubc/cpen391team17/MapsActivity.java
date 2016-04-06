@@ -28,6 +28,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -232,7 +233,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMarker = mMap.addMarker(new MarkerOptions().position(sydney).title("User's Last Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                new CameraPosition.Builder()
+                        .target(sydney)
+                        .zoom(17)
+                        .build()));
     }
 
     /**
@@ -282,7 +287,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
                             .title("User's Last Location"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarkerPosition));
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                            new CameraPosition.Builder()
+                                    .target(newMarkerPosition)
+                                    .zoom(17)
+                                    .build()));
                 } else {
                     Log.w(MA_TAG, "onFABPressed: mMap == null");
                 }
