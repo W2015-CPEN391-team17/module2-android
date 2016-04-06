@@ -68,6 +68,8 @@ public class BluetoothActivity extends AppCompatActivity {
                     PairedDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
+            closeConnection(); // Disconnect before connecting again
+
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(PairedDevices.get(position)) ;
             ConnectToSerialBlueToothDevice(); // user defined fn
@@ -85,6 +87,8 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
+            closeConnection(); // Disconnect before connecting again
+            
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(DiscoveredDevices.get(position)) ;
             ConnectToSerialBlueToothDevice();
