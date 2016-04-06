@@ -59,8 +59,13 @@ public class BluetoothActivity extends AppCompatActivity {
     private BluetoothSocket mmSocket = null;
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
+
     // Connection flag
     boolean connected = false;
+
+    // maximum number of points that the DE2 component can handle
+    public static final int MAX_LOCATIONS_SIZE = 1000;
+
     // list of locations that we get from the previous activity
     public List<Location> locations;
 
@@ -342,8 +347,9 @@ public class BluetoothActivity extends AppCompatActivity {
 
     /**
      * Remove any points from the locations ArrayList that appear before the last time that the path
-     * crosses the edge of the screen
-     * @param locationsList
+     * crosses the edge of the screen. Also, the returned list will have the last MAX_LOCATIONS_SIZE
+     * entries from the input if the input list has more than MAX_LOCATIONS_SIZE entries.
+     * @param locationsList input list
      * @param lat the latitude of the DE2's location
      * @param lon the longitude of the DE2's location
      * @param latrange the onscreen latitude range from the DE2's location
@@ -362,20 +368,26 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // loop through each location in locations in reverse order
         // to determine the value of startingLocationsIndex
-        for(int i = locationsList.size()-1; i >= 0; i--) {
+        for(int i = locationsList.size()-1; i >= 1; i--) {
             Location location = locationsList.get(i);
             if (location.getLatitude() < minLat || location.getLatitude() > maxLat ||
                     location.getLongitude() < minLon || location.getLongitude() > maxLon) {
-                startingLocationsIndex = i - 1;
+                startingLocationsIndex = i+1; //the previous one we accessed
             }
         }
-        System.out.println("startingLocationsIndex " + startingLocationsIndex);
 
         // remove all entries that were originally before that index
         for(int i = 0; i < startingLocationsIndex; i++) {
             locationsList.remove(0);
         }
 
+        if (locationsList.size() > MAX_LOCATIONS_SIZE) {
+            // only include last MAX_LOCATIONS_SIZE locations
+            final int number_to_remove = locationsList.size() - MAX_LOCATIONS_SIZE;
+            for(int i = 0; i < number_to_remove; i++) {
+                locationsList.remove(0);
+            }
+        }
         return locationsList;
     }
 
