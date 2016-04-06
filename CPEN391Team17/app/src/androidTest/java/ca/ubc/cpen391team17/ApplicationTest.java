@@ -79,6 +79,23 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     @Test
+    public void emptyTrimLocationsTest() {
+        // create list with 2*MAX_LOCATIONS_SIZE example locations
+        List<Location> locationsList = new ArrayList<Location>();
+
+        // data that the DE2 would have sent
+        float lat = 1.0f;
+        float lon = 1.0f;
+        float latrange = 1.0f;
+        float lonrange = 1.0f;
+
+        // call the function and check the result
+        List<Location> resultList = BluetoothActivity.trimLocations(locationsList, lat, lon, latrange,
+                lonrange);
+        assertEquals(0, resultList.size());
+    }
+
+    @Test
     public void fourEntriesKeepAllTrimLocationsTest() {
         // create four example locations
         final String providerName = "";
@@ -158,5 +175,30 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
         expectedList.add(location2);
         expectedList.add(location3);
         assertEquals(expectedList, resultList);
+    }
+
+    @Test
+    public void overMaxSizeTrimLocationsTest() {
+        // create list with 2*MAX_LOCATIONS_SIZE example locations
+        List<Location> locationsList = new ArrayList<Location>();
+        final String providerName = "";
+        for(int i = 0; i < 2*BluetoothActivity.MAX_LOCATIONS_SIZE; i++) {
+            Location location = new Location(providerName);
+            location.setLatitude(1.0d);
+            location.setLongitude(1.0d);
+            locationsList.add(location);
+        }
+
+        // data that the DE2 would have sent
+        // all points should be within range
+        float lat = 1.0f;
+        float lon = 1.0f;
+        float latrange = 1.0f;
+        float lonrange = 1.0f;
+
+        // call the function and check the result
+        List<Location> resultList = BluetoothActivity.trimLocations(locationsList, lat, lon, latrange,
+                lonrange);
+        assertEquals(BluetoothActivity.MAX_LOCATIONS_SIZE, resultList.size());
     }
 }
