@@ -83,9 +83,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.v(MA_TAG, "Pushing " +
                         mLastRecordedLocation.toString() + " into mLastRecordedLocation");
                 mUserPathLocations.add(mLastRecordedLocation);
-                for (Location location : mUserPathLocations) {
-                    Log.v(MA_TAG, "mRunnable: " + location.toString());
-                }
+                //for (Location location : mUserPathLocations) {
+                //    Log.v(MA_TAG, "mRunnable: " + location.toString());
+                //}
 
 
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)

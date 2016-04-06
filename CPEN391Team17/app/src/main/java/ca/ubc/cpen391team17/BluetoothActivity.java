@@ -317,7 +317,7 @@ public class BluetoothActivity extends AppCompatActivity {
         this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 
 
-        String str = generateLocationsString(locations);
+        String str = generateLocationsString(this.locations);
         do {
             WriteToBTDevice(str);
         }while(!ReadFromBTDevice().contains("="));
