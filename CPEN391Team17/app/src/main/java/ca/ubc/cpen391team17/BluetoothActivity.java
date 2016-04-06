@@ -58,7 +58,8 @@ public class BluetoothActivity extends AppCompatActivity {
     private BluetoothSocket mmSocket = null;
     public static InputStream mmInStream = null;
     public static OutputStream mmOutStream = null;
-
+    // Connection flag
+    boolean connected = false;
     // list of locations that we get from the previous activity
     ArrayList<Location> locations;
 
@@ -68,7 +69,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     PairedDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
-            closeConnection(); // Disconnect before connecting again
+            if (connected) closeConnection(); // Disconnect before connecting again
 
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(PairedDevices.get(position)) ;
@@ -87,7 +88,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredDetails.get ( position );
             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
-            closeConnection(); // Disconnect before connecting again
+            if (connected) closeConnection(); // Disconnect before connecting again
             
             // Connect to the geocache
             CreateSerialBluetoothDeviceSocket(DiscoveredDevices.get(position)) ;
@@ -270,6 +271,7 @@ public class BluetoothActivity extends AppCompatActivity {
             Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
+        connected = true;
         CommunicateWithDE2();
     }
 
