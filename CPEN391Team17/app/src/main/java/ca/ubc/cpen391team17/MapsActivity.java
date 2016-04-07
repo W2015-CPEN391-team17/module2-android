@@ -55,6 +55,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     //name of map
     String mapName = "";
 
+    //whether the map's checkbox was checked in the main menu
+    Boolean checked = false;
+
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
     // App-defined int constant used for handling permissions requests
