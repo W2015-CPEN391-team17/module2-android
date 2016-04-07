@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -76,7 +77,7 @@ public class BluetoothActivity extends AppCompatActivity {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
             String text = "Connecting to: " +
                     PairedDetails.get ( position );
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
             if (connected) closeConnection(); // Disconnect before connecting again
 
@@ -95,7 +96,7 @@ public class BluetoothActivity extends AppCompatActivity {
         {
             String text = "Connecting to: " +
                     DiscoveredDetails.get ( position );
-            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, text, Toast.LENGTH_LONG).show();
 
             if (connected) closeConnection(); // Disconnect before connecting again
             
@@ -113,6 +114,9 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
         context = getApplicationContext();
+
+        TextView message = (TextView) findViewById(R.id.sending);
+        message.setVisibility(View.GONE);
 
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
@@ -177,7 +181,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     String theDevice = new String( newDevice.getName() +
                             "\nMAC Address = " + newDevice.getAddress());
 
-                    Toast.makeText(context, theDevice, Toast.LENGTH_LONG).show();
+//                    Toast.makeText(context, theDevice, Toast.LENGTH_LONG).show();
 
                     // Add to devices
                     DiscoveredDevices.add(newDevice);
@@ -294,6 +298,10 @@ public class BluetoothActivity extends AppCompatActivity {
         } catch (IOException e) {
         System.out.println("Failed sockets");}
 
+        TextView message = (TextView) findViewById(R.id.sending);
+        message.setVisibility(View.VISIBLE);
+        message.setText("Sending path to geocache...");
+
         String latLongs;
         do{
             latLongs = ReadFromBTDevice();
@@ -321,7 +329,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         saveLocations(this.locations, "name"); //TODO name param
 
-        String str = generateLocationsString(locations);
+        String str = generateLocationsString(this.locations);
         do {
             WriteToBTDevice(str);
         }while(!ReadFromBTDevice().contains("="));

@@ -32,6 +32,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -92,9 +93,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.v(MA_TAG, "Pushing " +
                         mLastRecordedLocation.toString() + " into mLastRecordedLocation");
                 mUserPathLocations.add(mLastRecordedLocation);
-                for (Location location : mUserPathLocations) {
-                    Log.v(MA_TAG, "mRunnable: " + location.toString());
-                }
+                //for (Location location : mUserPathLocations) {
+                //    Log.v(MA_TAG, "mRunnable: " + location.toString());
+                //}
 
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)
                 if (mTrackingPath != null) {
@@ -296,10 +297,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMarker = mMap.addMarker(new MarkerOptions().position(sydney).title("User's Last Location"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Add a marker in bc
+        LatLng bc = new LatLng(49, -123);
+        mMarker = mMap.addMarker(new MarkerOptions().position(bc).title("User's Last Location"));
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                new CameraPosition.Builder()
+                        .target(bc)
+                        .zoom(17)
+                        .build()));
     }
 
     /**
@@ -350,7 +355,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
                             .title("User's Last Location"));
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(newMarkerPosition));
+                    mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                            new CameraPosition.Builder()
+                                    .target(newMarkerPosition)
+                                    .zoom(17)
+                                    .build()));
                 } else {
                     Log.w(MA_TAG, "onFABPressed: mMap == null");
                 }
