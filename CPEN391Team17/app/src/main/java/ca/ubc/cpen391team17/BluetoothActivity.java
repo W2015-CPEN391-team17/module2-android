@@ -298,9 +298,8 @@ public class BluetoothActivity extends AppCompatActivity {
         System.out.println("Failed sockets");}
 
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.bluetooth);
-
-        Snackbar snackbar = Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG);
-        snackbar.show();
+        Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG)
+                .show();
 
         String latLongs;
         do{
