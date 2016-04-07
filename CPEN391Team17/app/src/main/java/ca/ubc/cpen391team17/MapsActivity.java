@@ -41,8 +41,10 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -188,7 +190,36 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
         }
 
+        System.out.println("loadLocationsList: size of locationsList is " + locationsList.size());
+
         return locationsList;
+    }
+
+    /**
+     * Save the locationsList to a file in internal storage with name TODO
+     * @param locationsList
+     */
+    public void saveLocationsList(List<Location> locationsList, String name) {
+        System.out.println("saveLocationsList: size of locationsList is " + locationsList.size());
+
+        // create a serializable object
+        LocationListState state = new LocationListState();
+        for(Location location : locationsList) {
+            state.add(location);
+        }
+
+        // save that object to a file
+        String filename = "macleodexample.dat"; //TODO should use name param somehow
+        try {
+            File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
+                    filename);
+            FileOutputStream fileOutputStream = new FileOutputStream(locationsListStateFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(state);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -263,23 +294,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 0, 0, mLocationListener);
 
-
-        // check if we have a file to read the location data from
-        String exampleFilename = "macleodexample.dat";
-        File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
-                exampleFilename);
-        if (locationsListFile.exists()) {
-            System.out.println("locations list file exists");
-            this.mUserPathLocations.addAll(loadLocationsList(exampleFilename));
-        } else {
-            System.out.println("locations list file does not exist");
-            // Initialize the timer if we did not load data from a file
-            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
-        }
+        loadOrStartTimer();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    public void loadOrStartTimer() {
+        // check if we have a file to read the location data from
+        String exampleFilename = "macleodexample.dat"; //TODO name
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
+                exampleFilename);
+        if (locationsListFile.exists()) {
+            System.out.println("\n\nlocations list file exists********************\n\n");
+            this.mUserPathLocations.addAll(loadLocationsList(exampleFilename));
+
+            //TODO
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        } else {
+            System.out.println("\n\nlocations list file does not exist******************\n\n");
+            // Initialize the timer if we did not load data from a file
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        }
     }
 
     /**
@@ -400,7 +437,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
                         // Initialize the timer
-                        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+                        loadOrStartTimer();
                     } catch (SecurityException e) {
                         // The app is essentially useless without being able to get the user's
                         // location. For now, we just finish (quit) the app.
@@ -447,6 +484,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStop() {
         super.onStop();
+
+        saveLocationsList(this.mUserPathLocations, "TODO"); //TODO name
+
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         Action viewAction = Action.newAction(
@@ -478,7 +518,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateTrackingPath();
             }
         };
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+
+       loadOrStartTimer();
     }
 
     @Override

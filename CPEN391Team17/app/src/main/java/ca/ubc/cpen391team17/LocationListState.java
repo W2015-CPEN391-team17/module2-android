@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * A serializable structure to store the lat/lon info for a location list
  */
 public class LocationListState implements Serializable {
+    private static final long serialVersionUID = 1L;
     private ArrayList<Double> latList;
     private ArrayList<Double> lonList;
     private int size;

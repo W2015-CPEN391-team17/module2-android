@@ -330,8 +330,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
         this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
 
-        saveLocations(this.locations, "name"); //TODO name param
-
         String str = generateLocationsString(this.locations);
         do {
             WriteToBTDevice(str);
@@ -421,31 +419,6 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
         return locationsList;
-    }
-
-    /**
-     * Save the locationsList to a file in internal storage with name TODO
-     * @param locationsList
-     */
-    public void saveLocations(List<Location> locationsList, String name) {
-        // create a serializable object
-        LocationListState state = new LocationListState();
-        for(Location location : locationsList) {
-            state.add(location);
-        }
-
-        // save that object to a file
-        String filename = "macleodexample.dat"; //TODO should use name param somehow
-        try {
-            File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
-                    filename);
-            FileOutputStream fileOutputStream = new FileOutputStream(locationsListStateFile);
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(state);
-            objectOutputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     // Write to BT
