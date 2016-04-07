@@ -239,6 +239,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         mapName = intent.getStringExtra("mapName");
+        checked = intent.getBooleanExtra("checked", false);
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);
@@ -316,31 +317,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             this.mUserPathLocations.clear();
             this.mUserPathLocations.addAll(loadLocationsList(mapName));
 
-            //TODO refactor below to new function
-            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
-            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
-            for (Location location : mUserPathLocations) {
-                pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            if (!checked) {
+                //TODO refactor below to new function
+                // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+                ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+                for (Location location : mUserPathLocations) {
+                    pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+                }
+                PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+                for (LatLng latLng : pathCoordinates) {
+                    polylineOptions.add(latLng);
+                }
+                mTrackingPath = mMap.addPolyline(polylineOptions);
+                if (mMarker != null) {
+                    mMarker.remove();
+                }
+                Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+                LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                        mostRecentLocation.getLongitude());
+                mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                        .title("User's Last Location"));
+                //TODO refactor above
             }
-            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
-            for (LatLng latLng : pathCoordinates) {
-                polylineOptions.add(latLng);
-            }
-            mTrackingPath = mMap.addPolyline(polylineOptions);
-            if (mMarker != null) {
-                mMarker.remove();
-            }
-            Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
-            LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
-                    mostRecentLocation.getLongitude());
-            mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
-                    .title("User's Last Location"));
-
-            //TODO refactor above
 
         } else {
             // Initialize the timer if we did not load data from a file
-            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+            if (!checked) {
+                mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+            }
         }
     }
 
