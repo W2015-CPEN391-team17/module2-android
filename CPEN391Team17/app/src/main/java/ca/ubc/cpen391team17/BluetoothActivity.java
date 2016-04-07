@@ -188,7 +188,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredArrayAdapter.notifyDataSetChanged();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                    Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED) ) {
                     Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
@@ -278,7 +278,7 @@ public class BluetoothActivity extends AppCompatActivity {
         try {
             mmSocket.connect();
             System.out.println("Connected");
-            Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
             connected = true;
             CommunicateWithDE2();
         }
