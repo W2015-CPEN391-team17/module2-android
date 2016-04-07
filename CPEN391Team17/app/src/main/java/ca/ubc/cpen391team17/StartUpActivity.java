@@ -1,7 +1,10 @@
 package ca.ubc.cpen391team17;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -9,7 +12,25 @@ import android.view.View;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 
+import java.util.List;
+
 public class StartUpActivity extends AppCompatActivity {
+    private SensorManager mSensorManager;
+
+
+    /**
+     *
+     */
+    public void updateAirPressure() {
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        Sensor barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        if (barometer != null) {
+            System.out.println("updateAirPressure: There *is* a barometer");
+        } else {
+            System.out.println("updateAirPressure: barometer not found");
+        }
+    }
 
     public void mainMenu(View view){
         Intent intent = new Intent(this, MainMenuActivity.class);
