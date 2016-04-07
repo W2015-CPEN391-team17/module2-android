@@ -170,15 +170,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return locationsList;
         }
         try {
-            /* load checkboxesState from a file */
+            /* load LocationListState from a file */
             FileInputStream fileInputStream = openFileInput(exampleName); //TODO name
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            locationsList = (List<Location>) objectInputStream.readObject();
+            LocationListState state = (LocationListState) objectInputStream.readObject();
             objectInputStream.close();
             fileInputStream.close();
 
             /* update the list */
-            this.mUserPathLocations.addAll(locationsList);
+            int size = state.size();
+            for(int i = 0; i < size; i++) {
+                locationsList.add(state.remove());
+            }
 
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
@@ -265,8 +268,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
                 exampleFilename);
         if (locationsListFile.exists()) {
-            loadLocationsList(exampleFilename);
+            System.out.println("locations list file exists");
+            this.mUserPathLocations.addAll(loadLocationsList(exampleFilename));
         } else {
+            System.out.println("locations list file does not exist");
             // Initialize the timer if we did not load data from a file
             mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
         }

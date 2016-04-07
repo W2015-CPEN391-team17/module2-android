@@ -417,13 +417,20 @@ public class BluetoothActivity extends AppCompatActivity {
      * @param locationsList
      */
     public void saveLocations(List<Location> locationsList, String name) {
+        // create a serializable object
+        LocationListState state = new LocationListState();
+        for(Location location : locationsList) {
+            state.add(location);
+        }
+
+        // save that object to a file
         String filename = "macleodexample.dat"; //TODO should use name param somehow
         try {
-            File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
+            File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
                     filename);
-            FileOutputStream fileOutputStream = new FileOutputStream(locationsListFile);
+            FileOutputStream fileOutputStream = new FileOutputStream(locationsListStateFile);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-            objectOutputStream.writeObject(locationsList);
+            objectOutputStream.writeObject(state);
             objectOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();

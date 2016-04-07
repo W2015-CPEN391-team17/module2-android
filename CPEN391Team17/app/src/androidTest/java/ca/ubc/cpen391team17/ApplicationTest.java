@@ -201,4 +201,20 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
                 lonrange);
         assertEquals(BluetoothActivity.MAX_LOCATIONS_SIZE, resultList.size());
     }
+
+    @Test
+    public void locationListStateSizeTest() {
+        LocationListState state = new LocationListState();
+        assertTrue(state.size() == 0);
+        Location location0 = new Location("");
+        state.add(location0);
+        assertTrue(state.size() == 1);
+        Location location1 = new Location("");
+        state.add(location1);
+        assertTrue(state.size() == 2);
+        state.remove();
+        assertTrue(state.size() == 1);
+        state.remove();
+        assertTrue(state.size() == 0);
+    }
 }
