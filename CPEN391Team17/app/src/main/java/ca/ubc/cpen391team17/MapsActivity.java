@@ -230,12 +230,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMarker = mMap.addMarker(new MarkerOptions().position(sydney).title("User's Last Location"));
+        // Add a marker in bc
+        LatLng bc = new LatLng(49, -123);
+        mMarker = mMap.addMarker(new MarkerOptions().position(bc).title("User's Last Location"));
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                 new CameraPosition.Builder()
-                        .target(sydney)
+                        .target(bc)
                         .zoom(17)
                         .build()));
     }

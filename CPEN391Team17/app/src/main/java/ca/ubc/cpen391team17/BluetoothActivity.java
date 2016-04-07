@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -110,6 +111,9 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
         context = getApplicationContext();
+
+        TextView message = (TextView) findViewById(R.id.sending);
+        message.setVisibility(View.GONE);
 
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
@@ -290,6 +294,10 @@ public class BluetoothActivity extends AppCompatActivity {
             mmOutStream = mmSocket.getOutputStream();
         } catch (IOException e) {
         System.out.println("Failed sockets");}
+
+        TextView message = (TextView) findViewById(R.id.sending);
+        message.setVisibility(View.VISIBLE);
+        message.setText("Sending path to geocache...");
 
         String latLongs;
         do{
