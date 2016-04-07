@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -79,6 +80,8 @@ public class StartUpActivity extends AppCompatActivity implements SensorEventLis
     public void onSensorChanged(SensorEvent event) {
         double pressure = event.values[0];
         System.out.println("onSensorChanged: pressure is " + (int)pressure + " hPa");
+        TextView textView = (TextView) findViewById(R.id.barometer);
+        textView.setText((int)pressure + "hPa");
     }
 
     @Override
