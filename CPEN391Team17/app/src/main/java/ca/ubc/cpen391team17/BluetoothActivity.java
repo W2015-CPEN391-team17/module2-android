@@ -297,6 +297,7 @@ public class BluetoothActivity extends AppCompatActivity {
     // Gets IO streams and sends data back and forth
     public void CommunicateWithDE2() {
         final int mID = 1;
+        final int mID2 = 2;
 
         try {
             mmInStream = mmSocket.getInputStream();
@@ -379,6 +380,19 @@ public class BluetoothActivity extends AppCompatActivity {
           //  System.out.println(e.toString())1;
         //}
 
+        NotificationCompat.Builder mBuilder2 =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_action_upload)
+                        .setContentTitle("Upload complete.")
+                        .setContentText("Your path is now on on the geocache.")
+                        .setAutoCancel(true);
+
+        mBuilder2.setPriority(Notification.PRIORITY_HIGH);
+        if(Build.VERSION.SDK_INT >= 21) mBuilder.setVibrate(new long[0]);
+
+        final NotificationManager mNotificationManager2 =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager2.notify(mID2, mBuilder2.build());
 
         closeConnection(); // Disconnect after writing
 
