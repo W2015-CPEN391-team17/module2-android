@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
@@ -297,7 +299,8 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Gets IO streams and sends data back and forth
     public void CommunicateWithDE2() {
-        int mID = 1;
+        final int mID = 1;
+        final int mID2 = 2;
 
         try {
             mmInStream = mmSocket.getInputStream();
@@ -311,20 +314,12 @@ public class BluetoothActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_action_upload)
                         .setContentTitle("Ready for Upload")
-                        .setContentText("You can now send your path to the geocache.");
+                        .setContentText("You are now sending to the geocache.");
 
-        Intent resultIntent = new Intent(this, BluetoothActivity.class);
-
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BluetoothActivity.class);
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
+        mBuilder.setPriority(Notification.PRIORITY_HIGH);
+        if(Build.VERSION.SDK_INT >= 21) mBuilder.setVibrate(new long[0]);
+        
+        final NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(mID, mBuilder.build());
 
@@ -338,6 +333,8 @@ public class BluetoothActivity extends AppCompatActivity {
                 while (!latLongs.contains("?")) {
                     latLongs += ReadFromBTDevice();
                 }
+
+                mNotificationManager.cancel(mID);
 
                 latLongs = latLongs.substring(latLongs.indexOf('#') + 1, latLongs.indexOf('?'));
 
@@ -385,8 +382,20 @@ public class BluetoothActivity extends AppCompatActivity {
           //  System.out.println(e.toString())1;
         //}
 
+//        NotificationCompat.Builder mBuilder2 =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.ic_action_upload)
+//                        .setContentTitle("Upload complete.")
+//                        .setContentText("Your path is now on on the geocache.")
+//                        .setAutoCancel(true);
+//
+//        mBuilder2.setPriority(Notification.PRIORITY_HIGH);
+//        if(Build.VERSION.SDK_INT >= 21) mBuilder2.setVibrate(new long[0]);
+//
+//        mNotificationManager.notify(mID, mBuilder.build());
 
         closeConnection(); // Disconnect after writing
+
     }
 
     /**
