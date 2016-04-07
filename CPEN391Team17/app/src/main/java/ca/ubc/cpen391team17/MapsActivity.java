@@ -306,14 +306,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
+        else {
+            // Permission has already been granted; start retrieving the user's location
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    0, 0, mLocationListener);
+        }
         if (mLocationManager == null) {
             // The app is essentially useless without being able to get the user's
             // location. For now, we just finish (quit) the app.
             this.finishAffinity();
         }
-        // Permission has already been granted; start retrieving the user's location
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                0, 0, mLocationListener);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -485,8 +487,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
-                        // Initialize the timer
-                        loadOrStartTimer();
                     } catch (SecurityException e) {
                         // The app is essentially useless without being able to get the user's
                         // location. For now, we just finish (quit) the app.
