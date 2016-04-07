@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -9,6 +10,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.util.List;
 
 public class HintsActivity extends AppCompatActivity {
 
@@ -81,4 +88,33 @@ public class HintsActivity extends AppCompatActivity {
         finish();
     }
 
+
+    /**
+     * Delete the saved location data for this map/geocache
+     */
+    public void deleteLocationData() {
+        saveEmptyLocationsList(message);
+    }
+
+    /**
+     * Save an empty LocationsListState object to a file in internal storage with name + ".dat"
+     */
+    public void saveEmptyLocationsList(String name) {
+        // create a serializable object
+        LocationListState state = new LocationListState();
+
+        // save that object to a file
+        String filename = name + ".dat";
+        System.out.println("saveEmptyLocationsList: filename is " + filename);
+        try {
+            File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
+                    filename);
+            FileOutputStream fileOutputStream = new FileOutputStream(locationsListStateFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(state);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }
