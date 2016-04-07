@@ -52,6 +52,9 @@ import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    //name of map
+    String mapName = "";
+
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
     // App-defined int constant used for handling permissions requests
@@ -164,17 +167,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @return
      */
     public List<Location> loadLocationsList(String name) {
-        String exampleName = "macleodexample.dat";
+        String filename = name + ".dat";
+        System.out.println("loadLocationsList: filename is " + filename);
         List<Location> locationsList = new ArrayList<Location>();
-        File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
-                exampleName); //TODO name param
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
         /* only try to read the data if the file already exists */
         if (!locationsListFile.exists()) {
             return locationsList;
         }
         try {
             /* load LocationListState from a file */
-            FileInputStream fileInputStream = openFileInput(exampleName); //TODO name
+            FileInputStream fileInputStream = openFileInput(filename);
             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
             LocationListState state = (LocationListState) objectInputStream.readObject();
             objectInputStream.close();
@@ -196,7 +199,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * Save the locationsList to a file in internal storage with name TODO
+     * Save the locationsList to a file in internal storage with name + ".dat"
      * @param locationsList
      */
     public void saveLocationsList(List<Location> locationsList, String name) {
@@ -209,7 +212,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         // save that object to a file
-        String filename = "macleodexample.dat"; //TODO should use name param somehow
+        String filename = name + ".dat";
+        System.out.println("saveLocationsList: filename is " + filename);
+
         try {
             File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
                     filename);
@@ -233,6 +238,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         checkGooglePlayServices();
+
+        Intent intent = getIntent();
+        mapName = intent.getStringExtra("mapName");
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);
@@ -301,16 +309,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
     }
 
+
     public void loadOrStartTimer() {
         // check if we have a file to read the location data from
-        String exampleFilename = "macleodexample.dat"; //TODO name
-        File locationsListFile = new File(this.getApplicationContext().getFilesDir(),
-                exampleFilename);
+        System.out.println("loadOrStartTimer: (class's) mapName is " + mapName);
+        String filename = mapName + ".dat";
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
         if (locationsListFile.exists()) {
             System.out.println("\n\nlocations list file exists********************\n\n");
-            this.mUserPathLocations.addAll(loadLocationsList(exampleFilename));
-
-            //TODO
+            this.mUserPathLocations.clear();
+            this.mUserPathLocations.addAll(loadLocationsList(mapName));
             mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
         } else {
             System.out.println("\n\nlocations list file does not exist******************\n\n");
@@ -485,7 +493,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onStop() {
         super.onStop();
 
-        saveLocationsList(this.mUserPathLocations, "TODO"); //TODO name
+        saveLocationsList(this.mUserPathLocations, mapName);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.

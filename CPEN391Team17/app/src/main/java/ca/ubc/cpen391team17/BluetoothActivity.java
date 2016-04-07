@@ -1,6 +1,9 @@
 package ca.ubc.cpen391team17;
 
 import android.Manifest;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -13,13 +16,17 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -116,9 +123,6 @@ public class BluetoothActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bluetooth);
         context = getApplicationContext();
 
-        TextView message = (TextView) findViewById(R.id.sending);
-        message.setVisibility(View.GONE);
-
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
 
@@ -127,14 +131,14 @@ public class BluetoothActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission has not been granted; just exit the app for now
             Toast.makeText(context, "Please enable Bluetooth permissions",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
             finish();
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Permission has not been granted; just exit the app for now
                 Toast.makeText(context, "Please enable Bluetooth permissions",
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 // This call returns a handle to the one bluetooth device within your Android device
@@ -144,7 +148,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // Do we have a bluetooth device?
         if (mBluetoothAdapter == null) {
-            Toast toast = Toast.makeText(context, "No Bluetooth adapter found", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, "No Bluetooth adapter found", Toast.LENGTH_LONG);
             toast.show();
             finish();
             return ;
@@ -190,10 +194,10 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredArrayAdapter.notifyDataSetChanged();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                    Toast.makeText(context, "Discovery Started", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED) ) {
-                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -237,7 +241,7 @@ public class BluetoothActivity extends AppCompatActivity {
         if( requestCode == REQUEST_ENABLE_BT) {
             if( resultCode != RESULT_OK ) {
                 Toast toast = Toast.makeText(context, "Bluetooth failed to start",
-                        Toast.LENGTH_SHORT);
+                        Toast.LENGTH_LONG);
                 toast.show();
                 finish();
                 return;
@@ -270,7 +274,7 @@ public class BluetoothActivity extends AppCompatActivity {
             mmSocket = device.createRfcommSocketToServiceRecord (MY_UUID);
         }
         catch (IOException e) {
-            Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -280,12 +284,12 @@ public class BluetoothActivity extends AppCompatActivity {
         try {
             mmSocket.connect();
             System.out.println("Connected");
-            Toast.makeText(context, "Connection Made", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
             connected = true;
             CommunicateWithDE2();
         }
         catch (IOException connectException) {
-            Toast.makeText(context, "Connection Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -293,47 +297,77 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Gets IO streams and sends data back and forth
     public void CommunicateWithDE2() {
+        int mID = 1;
+
         try {
             mmInStream = mmSocket.getInputStream();
             mmOutStream = mmSocket.getOutputStream();
         } catch (IOException e) {
         System.out.println("Failed sockets");}
 
-        TextView message = (TextView) findViewById(R.id.sending);
-        message.setVisibility(View.VISIBLE);
-        message.setText("Sending path to geocache...");
+        System.out.println("Not blocking");
 
-        Snackbar.make(message, "Sending path to geocache...", Snackbar.LENGTH_LONG);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_action_upload)
+                        .setContentTitle("Ready for Upload")
+                        .setContentText("You can now send your path to the geocache.");
 
-        String latLongs;
-        do{
-            latLongs = ReadFromBTDevice();
-        }while(!latLongs.contains("#"));
+        Intent resultIntent = new Intent(this, BluetoothActivity.class);
 
-        while(!latLongs.contains("?")){
-            latLongs += ReadFromBTDevice();
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(BluetoothActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(mID, mBuilder.build());
+
+        Thread workerThread = new Thread(new Runnable() {
+            public void run() {
+                String latLongs;
+                do {
+                    latLongs = ReadFromBTDevice();
+                } while (!latLongs.contains("#"));
+
+                while (!latLongs.contains("?")) {
+                    latLongs += ReadFromBTDevice();
+                }
+
+                latLongs = latLongs.substring(latLongs.indexOf('#') + 1, latLongs.indexOf('?'));
+
+                float lat;
+                float lon;
+                float latrange;
+                float lonrange;
+
+                String[] string_data = latLongs.split(",");
+
+                lat = Float.valueOf(string_data[0]);
+                lon = Float.valueOf(string_data[1]);
+                latrange = Float.valueOf(string_data[2]);
+                lonrange = Float.valueOf(string_data[3]);
+
+                locations = trimLocations(locations, lat, lon, latrange, lonrange);
+
+
+                String str = generateLocationsString(locations);
+            do {
+                WriteToBTDevice(str);
+            }while(!ReadFromBTDevice().contains("="));
+            }});
+
+        workerThread.start();
+        try {
+            workerThread.join();
+        }catch (InterruptedException e){
+            System.out.println(e.toString());
         }
-
-        latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
-
-        float lat;
-        float lon;
-        float latrange;
-        float lonrange;
-
-        String[] string_data = latLongs.split(",");
-
-        lat = Float.valueOf(string_data[0]);
-        lon = Float.valueOf(string_data[1]);
-        latrange = Float.valueOf(string_data[2]);
-        lonrange = Float.valueOf(string_data[3]);
-
-        this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
-
-        String str = generateLocationsString(this.locations);
-        do {
-            WriteToBTDevice(str);
-        }while(!ReadFromBTDevice().contains("="));
 
         //WriteToBTDevice(generateLocationsString());
 
