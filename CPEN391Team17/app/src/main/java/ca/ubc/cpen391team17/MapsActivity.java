@@ -412,8 +412,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             case R.id.action_upload:
                 mTimerTask.cancel();
                 mTimer.purge();
-                saveLocationsList(this.mUserPathLocations, mapName);
-
 
                 // User chose the "Upload" item.
                 // Start the Bluetooth Activity.
@@ -523,7 +521,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         mTimerTask.cancel();
         mTimer.purge();
-        saveLocationsList(this.mUserPathLocations, mapName);
 
         // Finish the activity
         finish();
@@ -531,12 +528,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         // Manually destroy async objects
         mTimer.cancel();
         mTimer.purge();
-        saveLocationsList(this.mUserPathLocations, mapName);
+
+        super.onDestroy();
 
         mHandler.removeCallbacks(mRunnable);
     }
@@ -544,6 +540,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onStop() {
         super.onStop();
+        saveLocationsList(this.mUserPathLocations, mapName);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
