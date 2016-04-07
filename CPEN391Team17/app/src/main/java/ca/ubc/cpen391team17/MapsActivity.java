@@ -345,7 +345,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mMarker.remove();
             }
 
-            if (checked) {
+            if (checked && mUserPathLocations.size() > 0) {
                 Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
                 LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
                         mostRecentLocation.getLongitude());
