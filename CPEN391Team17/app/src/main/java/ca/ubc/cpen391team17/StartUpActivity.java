@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,23 +16,9 @@ import com.google.android.gms.common.GoogleApiAvailability;
 
 import java.util.List;
 
-public class StartUpActivity extends AppCompatActivity {
+public class StartUpActivity extends AppCompatActivity implements SensorEventListener {
     private SensorManager mSensorManager;
-
-
-    /**
-     *
-     */
-    public void updateAirPressure() {
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
-        Sensor barometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
-        if (barometer != null) {
-            System.out.println("updateAirPressure: There *is* a barometer");
-        } else {
-            System.out.println("updateAirPressure: barometer not found");
-        }
-    }
+    private Sensor mBarometer;
 
     public void mainMenu(View view){
         Intent intent = new Intent(this, MainMenuActivity.class);
@@ -67,5 +55,30 @@ public class StartUpActivity extends AppCompatActivity {
         super.onBackPressed();
         // Quit the app
         this.finishAffinity();
+    }
+
+    /**
+     * TODO does the thing
+     */
+    public void updateAirPressure() {
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
+        mBarometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
+        if (mBarometer != null) {
+            System.out.println("updateAirPressure: There *is* a barometer");
+        } else {
+            System.out.println("updateAirPressure: barometer not found");
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        double pressure = event.values[0];
+        System.out.println("onSensorChanged: pressure is " + pressure);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // we do not need to do anything if sensor accuracy changes
     }
 }
