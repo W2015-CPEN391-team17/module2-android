@@ -300,9 +300,8 @@ public class BluetoothActivity extends AppCompatActivity {
         System.out.println("Not blocking");
 
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.bluetooth);
-
-        Snackbar snackbar = Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG);
-        snackbar.show();
+        Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG)
+                .show();
 
         Thread workerThread = new Thread(new Runnable() {
             public void run() {
