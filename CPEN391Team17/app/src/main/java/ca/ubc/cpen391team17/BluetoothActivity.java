@@ -392,6 +392,8 @@ public class BluetoothActivity extends AppCompatActivity {
 //
 //        mNotificationManager.notify(mID, mBuilder.build());
 
+        Toast.makeText(context, "Bluetooth done", Toast.LENGTH_LONG).show();
+
         closeConnection(); // Disconnect after writing
 
     }
