@@ -297,41 +297,54 @@ public class BluetoothActivity extends AppCompatActivity {
         } catch (IOException e) {
         System.out.println("Failed sockets");}
 
+        System.out.println("Not blocking");
+
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.bluetooth);
 
         Snackbar snackbar = Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG);
         snackbar.show();
 
-        String latLongs;
-        do{
-            latLongs = ReadFromBTDevice();
-        }while(!latLongs.contains("#"));
+        Thread workerThread = new Thread(new Runnable() {
+            public void run() {
+                String latLongs;
+                do {
+                    latLongs = ReadFromBTDevice();
+                } while (!latLongs.contains("#"));
 
-        while(!latLongs.contains("?")){
-            latLongs += ReadFromBTDevice();
+                while (!latLongs.contains("?")) {
+                    latLongs += ReadFromBTDevice();
+                }
+
+                latLongs = latLongs.substring(latLongs.indexOf('#') + 1, latLongs.indexOf('?'));
+
+                float lat;
+                float lon;
+                float latrange;
+                float lonrange;
+
+                String[] string_data = latLongs.split(",");
+
+                lat = Float.valueOf(string_data[0]);
+                lon = Float.valueOf(string_data[1]);
+                latrange = Float.valueOf(string_data[2]);
+                lonrange = Float.valueOf(string_data[3]);
+
+                locations = trimLocations(locations, lat, lon, latrange, lonrange);
+
+
+                String str = generateLocationsString(locations);
+                do {
+                    WriteToBTDevice(str);
+                } while (!ReadFromBTDevice().contains("="));
+            }
+        });
+
+        workerThread.start();
+        try {
+              workerThread.join();
+        }catch (InterruptedException e){
+                System.out.println(e.toString());
         }
-
-        latLongs = latLongs.substring(latLongs.indexOf('#')+1, latLongs.indexOf('?'));
-
-        float lat;
-        float lon;
-        float latrange;
-        float lonrange;
-
-        String[] string_data = latLongs.split(",");
-
-        lat = Float.valueOf(string_data[0]);
-        lon = Float.valueOf(string_data[1]);
-        latrange = Float.valueOf(string_data[2]);
-        lonrange = Float.valueOf(string_data[3]);
-
-        this.locations = trimLocations(this.locations, lat, lon, latrange, lonrange);
-
-
-        String str = generateLocationsString(this.locations);
-        do {
-            WriteToBTDevice(str);
-        }while(!ReadFromBTDevice().contains("="));
 
         //WriteToBTDevice(generateLocationsString());
 
