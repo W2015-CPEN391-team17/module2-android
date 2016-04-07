@@ -54,10 +54,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean mBool;
     //name of map
-    String mapName = "";
+    private String mapName = "";
 
-    //whether the map's checkbox was checked in the main menu
-    Boolean checked = false;
+    // whether the map's checkbox was checked in the main menu
+    private boolean checked = false;
+
+    // is it the first useful data?
+    private boolean firstUseful = false;
 
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
@@ -130,6 +133,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             mostRecentLocation.getLongitude());
                     mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
                             .title("User's Last Location"));
+                    if (!firstUseful) {
+                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                new CameraPosition.Builder()
+                                        .target(newMarkerPosition)
+                                        .zoom(17)
+                                        .build()));
+                        firstUseful = true;
+                    }
                 } else {
                     Log.w(MA_TAG, "mRunnable.run: mMap == null");
                 }
@@ -340,6 +351,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mostRecentLocation.getLongitude());
                 mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
                         .title("User's Last Location"));
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                        new CameraPosition.Builder()
+                                .target(newMarkerPosition)
+                                .zoom(17)
+                                .build()));
             }
 
         }
@@ -367,13 +383,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         loadOrStartTimer();
 
         // Add a marker in bc
-        LatLng bc = new LatLng(50, -123);
-        mMarker = mMap.addMarker(new MarkerOptions().position(bc).title("User's Last Location"));
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                new CameraPosition.Builder()
-                        .target(bc)
-                        .zoom(17)
-                        .build()));
+        if (!checked) {
+            LatLng bc = new LatLng(50, -123);
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition.Builder()
+                            .target(bc)
+                            .zoom(0)
+                            .build()));
+        }
     }
 
     /**
