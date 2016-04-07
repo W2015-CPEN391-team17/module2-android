@@ -388,7 +388,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         .setAutoCancel(true);
 
         mBuilder2.setPriority(Notification.PRIORITY_HIGH);
-        if(Build.VERSION.SDK_INT >= 21) mBuilder.setVibrate(new long[0]);
+        if(Build.VERSION.SDK_INT >= 21) mBuilder2.setVibrate(new long[0]);
 
         final NotificationManager mNotificationManager2 =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
