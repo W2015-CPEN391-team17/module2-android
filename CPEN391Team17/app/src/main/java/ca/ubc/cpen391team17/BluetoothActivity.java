@@ -114,9 +114,6 @@ public class BluetoothActivity extends AppCompatActivity {
         setContentView(R.layout.activity_bluetooth);
         context = getApplicationContext();
 
-        TextView message = (TextView) findViewById(R.id.sending);
-        message.setVisibility(View.GONE);
-
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
 
@@ -298,10 +295,6 @@ public class BluetoothActivity extends AppCompatActivity {
         System.out.println("Failed sockets");}
 
         System.out.println("Not blocking");
-
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.bluetooth);
-        Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG)
-                .show();
 
         Thread workerThread = new Thread(new Runnable() {
             public void run() {
