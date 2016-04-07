@@ -79,7 +79,6 @@ public class StartUpActivity extends AppCompatActivity implements SensorEventLis
     @Override
     public void onSensorChanged(SensorEvent event) {
         double pressure = event.values[0];
-        System.out.println("onSensorChanged: pressure is " + (int)pressure + " hPa");
         TextView textView = (TextView) findViewById(R.id.barometer);
         textView.setText((int)pressure + " hPa");
     }

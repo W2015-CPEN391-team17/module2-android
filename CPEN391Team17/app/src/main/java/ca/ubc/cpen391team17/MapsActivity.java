@@ -410,6 +410,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_upload:
+                mTimerTask.cancel();
+                mTimer.purge();
+                saveLocationsList(this.mUserPathLocations, mapName);
+
+
                 // User chose the "Upload" item.
                 // Start the Bluetooth Activity.
                 Intent intent = new Intent(this, BluetoothActivity.class);
@@ -516,6 +521,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         super.onBackPressed();
 
+        mTimerTask.cancel();
+        mTimer.purge();
+        saveLocationsList(this.mUserPathLocations, mapName);
+
         // Finish the activity
         finish();
     }
@@ -527,14 +536,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Manually destroy async objects
         mTimer.cancel();
         mTimer.purge();
+        saveLocationsList(this.mUserPathLocations, mapName);
+
         mHandler.removeCallbacks(mRunnable);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        saveLocationsList(this.mUserPathLocations, mapName);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -550,8 +559,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
         AppIndex.AppIndexApi.end(client, viewAction);
 
-        mTimerTask.cancel();
-        mTimer.purge();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.disconnect();
