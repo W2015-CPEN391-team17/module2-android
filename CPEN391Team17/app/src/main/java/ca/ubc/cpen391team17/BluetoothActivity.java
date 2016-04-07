@@ -380,19 +380,17 @@ public class BluetoothActivity extends AppCompatActivity {
           //  System.out.println(e.toString())1;
         //}
 
-        NotificationCompat.Builder mBuilder2 =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.ic_action_upload)
-                        .setContentTitle("Upload complete.")
-                        .setContentText("Your path is now on on the geocache.")
-                        .setAutoCancel(true);
-
-        mBuilder2.setPriority(Notification.PRIORITY_HIGH);
-        if(Build.VERSION.SDK_INT >= 21) mBuilder2.setVibrate(new long[0]);
-
-        final NotificationManager mNotificationManager2 =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mNotificationManager2.notify(mID2, mBuilder2.build());
+//        NotificationCompat.Builder mBuilder2 =
+//                new NotificationCompat.Builder(this)
+//                        .setSmallIcon(R.drawable.ic_action_upload)
+//                        .setContentTitle("Upload complete.")
+//                        .setContentText("Your path is now on on the geocache.")
+//                        .setAutoCancel(true);
+//
+//        mBuilder2.setPriority(Notification.PRIORITY_HIGH);
+//        if(Build.VERSION.SDK_INT >= 21) mBuilder2.setVibrate(new long[0]);
+//
+//        mNotificationManager.notify(mID, mBuilder.build());
 
         closeConnection(); // Disconnect after writing
 
