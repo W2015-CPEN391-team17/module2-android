@@ -199,7 +199,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     //Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED) ) {
-                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -474,6 +474,8 @@ public class BluetoothActivity extends AppCompatActivity {
     // Called when the back button is pressed.
     @Override
     public void onBackPressed() {
+        mReceiver.abortBroadcast();
+        mBluetoothAdapter.cancelDiscovery();
         super.onBackPressed();
         finish();
     }
