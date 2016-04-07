@@ -99,6 +99,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         if(checkBox.isChecked()) {
             mapIntent.putExtra("mapName", mapName);
+            mapIntent.putExtra("checked", true);
             startActivity(mapIntent);
         }
         else {
