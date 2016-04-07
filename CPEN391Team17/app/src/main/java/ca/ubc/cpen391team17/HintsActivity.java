@@ -12,9 +12,11 @@ import android.widget.TextView;
 
 public class HintsActivity extends AppCompatActivity {
 
+    String message = " ";
     /* Opens MapActivity*/
     public void openMap1(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra("mapName", message);
         startActivity(intent);
     }
 
@@ -34,7 +36,7 @@ public class HintsActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
 
-        String message = extras.getString("title_key");
+        message = extras.getString("title_key");
         String message1 = extras.getString("clue1_key");
         String message2 = extras.getString("clue2_key");
         String message3 = extras.getString("clue3_key");

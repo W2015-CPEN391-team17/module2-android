@@ -30,8 +30,11 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -351,17 +354,16 @@ public class BluetoothActivity extends AppCompatActivity {
 
 
                 String str = generateLocationsString(locations);
-                do {
-                    WriteToBTDevice(str);
-                } while (!ReadFromBTDevice().contains("="));
-            }
-        });
+            do {
+                WriteToBTDevice(str);
+            }while(!ReadFromBTDevice().contains("="));
+            }});
 
         workerThread.start();
         try {
-              workerThread.join();
+            workerThread.join();
         }catch (InterruptedException e){
-                System.out.println(e.toString());
+            System.out.println(e.toString());
         }
 
         //WriteToBTDevice(generateLocationsString());

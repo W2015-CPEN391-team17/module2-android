@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -22,8 +23,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.os.Handler;
 
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,11 +39,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    //name of map
+    String mapName = "";
 
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
@@ -48,7 +62,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     // Holds the GPS locations for the path that the user takes to the geocache.
     // Get a reference to the application-wide AppData.
-    private ArrayList<Location> mUserPathLocations =
+    private List<Location> mUserPathLocations =
             AppData.getInstance().getMapsActivityPathLocations();
     // GoogleMap field used by the app
     private GoogleMap mMap;
@@ -88,7 +102,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //    Log.v(MA_TAG, "mRunnable: " + location.toString());
                 //}
 
-
                 // Dynamically update the on-screen PolyLine (the user's path to the geocache)
                 if (mTrackingPath != null) {
                     mTrackingPath.remove();
@@ -121,6 +134,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
     };
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
+    private GoogleApiClient client;
 
     private void checkGooglePlayServices() {
         // Check if the user has the latest latest Google Play Services, and if not, prompt the
@@ -142,6 +160,73 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         checkGooglePlayServices();
     }
 
+    /**
+     * Load from the given filename and return that list
+     *
+     * @param name
+     * @return
+     */
+    public List<Location> loadLocationsList(String name) {
+        String filename = name + ".dat";
+        System.out.println("loadLocationsList: filename is " + filename);
+        List<Location> locationsList = new ArrayList<Location>();
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
+        /* only try to read the data if the file already exists */
+        if (!locationsListFile.exists()) {
+            return locationsList;
+        }
+        try {
+            /* load LocationListState from a file */
+            FileInputStream fileInputStream = openFileInput(filename);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            LocationListState state = (LocationListState) objectInputStream.readObject();
+            objectInputStream.close();
+            fileInputStream.close();
+
+            /* update the list */
+            int size = state.size();
+            for(int i = 0; i < size; i++) {
+                locationsList.add(state.remove());
+            }
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("loadLocationsList: size of locationsList is " + locationsList.size());
+
+        return locationsList;
+    }
+
+    /**
+     * Save the locationsList to a file in internal storage with name + ".dat"
+     * @param locationsList
+     */
+    public void saveLocationsList(List<Location> locationsList, String name) {
+        System.out.println("saveLocationsList: size of locationsList is " + locationsList.size());
+
+        // create a serializable object
+        LocationListState state = new LocationListState();
+        for(Location location : locationsList) {
+            state.add(location);
+        }
+
+        // save that object to a file
+        String filename = name + ".dat";
+        System.out.println("saveLocationsList: filename is " + filename);
+
+        try {
+            File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
+                    filename);
+            FileOutputStream fileOutputStream = new FileOutputStream(locationsListStateFile);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+            objectOutputStream.writeObject(state);
+            objectOutputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +238,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mapFragment.getMapAsync(this);
 
         checkGooglePlayServices();
+
+        Intent intent = getIntent();
+        mapName = intent.getStringExtra("mapName");
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);
@@ -184,11 +272,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 mLastRecordedLocation = location;
             }
 
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
 
-            public void onProviderEnabled(String provider) {}
+            public void onProviderEnabled(String provider) {
+            }
 
-            public void onProviderDisabled(String provider) {}
+            public void onProviderDisabled(String provider) {
+            }
         };
 
         // Register the listener with the Location Manager to receive location updates.
@@ -209,10 +300,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         // Permission has already been granted; start retrieving the user's location
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                    0, 0, mLocationListener);
+                0, 0, mLocationListener);
 
-        // Initialize the timer
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        loadOrStartTimer();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+
+    public void loadOrStartTimer() {
+        // check if we have a file to read the location data from
+        System.out.println("loadOrStartTimer: (class's) mapName is " + mapName);
+        String filename = mapName + ".dat";
+        File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
+        if (locationsListFile.exists()) {
+            System.out.println("\n\nlocations list file exists********************\n\n");
+            this.mUserPathLocations.clear();
+            this.mUserPathLocations.addAll(loadLocationsList(mapName));
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        } else {
+            System.out.println("\n\nlocations list file does not exist******************\n\n");
+            // Initialize the timer if we did not load data from a file
+            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+        }
     }
 
     /**
@@ -260,7 +372,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 // User chose the "Upload" item.
                 // Start the Bluetooth Activity.
                 Intent intent = new Intent(this, BluetoothActivity.class);
-                ArrayList<Location> locations = mUserPathLocations;
+                ArrayList<Location> locations = new ArrayList<Location>();
+                locations.addAll(mUserPathLocations);
                 intent.putExtra("location_list", locations);
                 startActivity(intent);
                 return true;
@@ -332,7 +445,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
                         // Initialize the timer
-                        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+                        loadOrStartTimer();
                     } catch (SecurityException e) {
                         // The app is essentially useless without being able to get the user's
                         // location. For now, we just finish (quit) the app.
@@ -377,15 +490,34 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
+
+        saveLocationsList(this.mUserPathLocations, mapName);
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Maps Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://ca.ubc.cpen391team17/http/host/path")
+        );
+        AppIndex.AppIndexApi.end(client, viewAction);
 
         mTimerTask.cancel();
         mTimer.purge();
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.disconnect();
     }
 
     @Override
-    public void onRestart(){
+    public void onRestart() {
         super.onRestart();
 
         mTimerTask = new TimerTask() {
@@ -394,6 +526,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 updateTrackingPath();
             }
         };
-        mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+
+       loadOrStartTimer();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        // ATTENTION: This was auto-generated to implement the App Indexing API.
+        // See https://g.co/AppIndexing/AndroidStudio for more information.
+        client.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Maps Page", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse("http://host/path"),
+                // TODO: Make sure this auto-generated app deep link URI is correct.
+                Uri.parse("android-app://ca.ubc.cpen391team17/http/host/path")
+        );
+        AppIndex.AppIndexApi.start(client, viewAction);
     }
 }

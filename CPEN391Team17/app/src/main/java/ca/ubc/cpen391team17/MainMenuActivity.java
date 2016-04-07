@@ -123,7 +123,6 @@ public class MainMenuActivity extends AppCompatActivity {
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(this.checkboxesState);
             objectOutputStream.close();
-            //TODO fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -154,7 +153,6 @@ public class MainMenuActivity extends AppCompatActivity {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
