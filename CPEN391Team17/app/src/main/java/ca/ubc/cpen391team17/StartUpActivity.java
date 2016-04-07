@@ -45,6 +45,13 @@ public class StartUpActivity extends AppCompatActivity implements SensorEventLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_up);
         checkGooglePlayServices();
+        initializeBarometer();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mSensorManager.registerListener(this, mBarometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     /**
@@ -57,10 +64,7 @@ public class StartUpActivity extends AppCompatActivity implements SensorEventLis
         this.finishAffinity();
     }
 
-    /**
-     * TODO does the thing
-     */
-    public void updateAirPressure() {
+    public void initializeBarometer() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         List<Sensor> deviceSensors = mSensorManager.getSensorList(Sensor.TYPE_ALL);
         mBarometer = mSensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
@@ -74,7 +78,7 @@ public class StartUpActivity extends AppCompatActivity implements SensorEventLis
     @Override
     public void onSensorChanged(SensorEvent event) {
         double pressure = event.values[0];
-        System.out.println("onSensorChanged: pressure is " + pressure);
+        System.out.println("onSensorChanged: pressure is " + (int)pressure + " hPa");
     }
 
     @Override
