@@ -2,6 +2,8 @@ package ca.ubc.cpen391team17;
 
 import android.Manifest;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -307,6 +309,18 @@ public class BluetoothActivity extends AppCompatActivity {
                         .setSmallIcon(R.drawable.ic_action_upload)
                         .setContentTitle("Ready for Upload")
                         .setContentText("You can now send your path to the geocache.");
+
+        Intent resultIntent = new Intent(this, BluetoothActivity.class);
+
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(BluetoothActivity.class);
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(mID, mBuilder.build());
