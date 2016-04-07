@@ -52,6 +52,7 @@ import java.util.TimerTask;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    private boolean mBool;
     //name of map
     String mapName = "";
 
@@ -241,6 +242,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         mapName = intent.getStringExtra("mapName");
+        mBool = intent.getBooleanExtra("checked", false);
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);

@@ -17,6 +17,7 @@ public class HintsActivity extends AppCompatActivity {
     public void openMap1(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
         intent.putExtra("mapName", message);
+        intent.putExtra("checked", false);
         startActivity(intent);
     }
 
