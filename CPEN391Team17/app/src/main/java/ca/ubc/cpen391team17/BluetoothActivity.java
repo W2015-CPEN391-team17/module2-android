@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -13,6 +14,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -118,9 +120,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
-
-        TextView message = (TextView) findViewById(R.id.send);
-        message.setVisibility(View.GONE);
 
         // Check if the user has set the necessary permissions to use Bluetooth.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
@@ -293,6 +292,8 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Gets IO streams and sends data back and forth
     public void CommunicateWithDE2() {
+        int mID = 1;
+
         try {
             mmInStream = mmSocket.getInputStream();
             mmOutStream = mmSocket.getOutputStream();
@@ -301,8 +302,14 @@ public class BluetoothActivity extends AppCompatActivity {
 
         System.out.println("Not blocking");
 
-        TextView message = (TextView) findViewById(R.id.send);
-        message.setVisibility(View.VISIBLE);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_action_upload)
+                        .setContentTitle("Ready for Upload")
+                        .setContentText("You can now send your path to the geocache.");
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(mID, mBuilder.build());
 
         Thread workerThread = new Thread(new Runnable() {
             public void run() {
