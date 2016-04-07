@@ -296,7 +296,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
     // Gets IO streams and sends data back and forth
     public void CommunicateWithDE2() {
-        int mID = 1;
+        final int mID = 1;
 
         try {
             mmInStream = mmSocket.getInputStream();
@@ -310,7 +310,7 @@ public class BluetoothActivity extends AppCompatActivity {
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.ic_action_upload)
                         .setContentTitle("Ready for Upload")
-                        .setContentText("You can now send your path to the geocache.");
+                        .setContentText("You are now sending to the geocache.");
 
         mBuilder.setPriority(Notification.PRIORITY_HIGH);
         if(Build.VERSION.SDK_INT >= 21) mBuilder.setVibrate(new long[0]);
@@ -326,7 +326,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         PendingIntent.FLAG_UPDATE_CURRENT
                 );
         mBuilder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
+        final NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(mID, mBuilder.build());
 
@@ -340,6 +340,8 @@ public class BluetoothActivity extends AppCompatActivity {
                 while (!latLongs.contains("?")) {
                     latLongs += ReadFromBTDevice();
                 }
+
+                mNotificationManager.cancel(mID);
 
                 latLongs = latLongs.substring(latLongs.indexOf('#') + 1, latLongs.indexOf('?'));
 
@@ -390,8 +392,6 @@ public class BluetoothActivity extends AppCompatActivity {
 
 
         closeConnection(); // Disconnect after writing
-
-        mNotificationManager.cancel(mID);
 
     }
 
