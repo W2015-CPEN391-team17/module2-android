@@ -18,6 +18,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,14 +125,14 @@ public class BluetoothActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission has not been granted; just exit the app for now
             Toast.makeText(context, "Please enable Bluetooth permissions",
-                    Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_LONG).show();
             finish();
         } else {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADMIN)
                     != PackageManager.PERMISSION_GRANTED) {
                 // Permission has not been granted; just exit the app for now
                 Toast.makeText(context, "Please enable Bluetooth permissions",
-                        Toast.LENGTH_SHORT).show();
+                        Toast.LENGTH_LONG).show();
                 finish();
             } else {
                 // This call returns a handle to the one bluetooth device within your Android device
@@ -141,7 +142,7 @@ public class BluetoothActivity extends AppCompatActivity {
 
         // Do we have a bluetooth device?
         if (mBluetoothAdapter == null) {
-            Toast toast = Toast.makeText(context, "No Bluetooth adapter found", Toast.LENGTH_SHORT);
+            Toast toast = Toast.makeText(context, "No Bluetooth adapter found", Toast.LENGTH_LONG);
             toast.show();
             finish();
             return ;
@@ -187,10 +188,10 @@ public class BluetoothActivity extends AppCompatActivity {
                     DiscoveredArrayAdapter.notifyDataSetChanged();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_STARTED)) {
-                    Toast.makeText(context, "Discovery Started", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED) ) {
-                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -234,7 +235,7 @@ public class BluetoothActivity extends AppCompatActivity {
         if( requestCode == REQUEST_ENABLE_BT) {
             if( resultCode != RESULT_OK ) {
                 Toast toast = Toast.makeText(context, "Bluetooth failed to start",
-                        Toast.LENGTH_SHORT);
+                        Toast.LENGTH_LONG);
                 toast.show();
                 finish();
                 return;
@@ -267,7 +268,7 @@ public class BluetoothActivity extends AppCompatActivity {
             mmSocket = device.createRfcommSocketToServiceRecord (MY_UUID);
         }
         catch (IOException e) {
-            Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Socket Creation Failed", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -277,12 +278,12 @@ public class BluetoothActivity extends AppCompatActivity {
         try {
             mmSocket.connect();
             System.out.println("Connected");
-            Toast.makeText(context, "Connection Made", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Connection Made", Toast.LENGTH_LONG).show();
             connected = true;
             CommunicateWithDE2();
         }
         catch (IOException connectException) {
-            Toast.makeText(context, "Connection Failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Connection Failed", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -296,11 +297,10 @@ public class BluetoothActivity extends AppCompatActivity {
         } catch (IOException e) {
         System.out.println("Failed sockets");}
 
-        TextView message = (TextView) findViewById(R.id.sending);
-        message.setVisibility(View.VISIBLE);
-        message.setText("Sending path to geocache...");
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.bluetooth);
 
-        Snackbar.make(message, "Sending path to geocache...", Snackbar.LENGTH_LONG);
+        Snackbar snackbar = Snackbar.make(layout, "Sending path to geocache...", Snackbar.LENGTH_LONG);
+        snackbar.show();
 
         String latLongs;
         do{
