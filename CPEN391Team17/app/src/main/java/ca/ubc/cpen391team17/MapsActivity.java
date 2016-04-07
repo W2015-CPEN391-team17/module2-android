@@ -231,7 +231,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         // Add a marker in bc
-        LatLng bc = new LatLng(49, -123);
+        LatLng bc = new LatLng(50, -123);
         mMarker = mMap.addMarker(new MarkerOptions().position(bc).title("User's Last Location"));
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                 new CameraPosition.Builder()
