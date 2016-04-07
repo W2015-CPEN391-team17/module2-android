@@ -36,6 +36,7 @@ public class MainMenuActivity extends AppCompatActivity {
         CheckBox checkBox = (CheckBox) findViewById(R.id.checkbox1);
         Intent mapIntent = new Intent(this, MapsActivity.class);
         Intent hintIntent = new Intent(this, HintsActivity.class);
+        String mapName = "string not initialized";
         String message = "string not initialized";
         String message1 = "string not initialized";
         String message2 = "string not initialized";
@@ -47,6 +48,7 @@ public class MainMenuActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.button1:
                 checkBox = (CheckBox) findViewById(R.id.checkbox1);
+                mapName = getResources().getString(R.string.thechief);
                 message = getResources().getString(R.string.thechief);
                 message1 = getResources().getString(R.string.thechief_clue_1);
                 message2 = getResources().getString(R.string.thechief_clue_2);
@@ -56,6 +58,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 break;
             case R.id.button2:
                 checkBox = (CheckBox) findViewById(R.id.checkbox2);
+                mapName = getResources().getString(R.string.brandy);
                 message = getResources().getString(R.string.brandy);
                 message1 = getResources().getString(R.string.brandy_clue_1);
                 message2 = getResources().getString(R.string.brandy_clue_2);
@@ -65,6 +68,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 break;
             case R.id.button3:
                 checkBox = (CheckBox) findViewById(R.id.checkbox3);
+                mapName = getResources().getString(R.string.park);
                 message = getResources().getString(R.string.park);
                 message1 = getResources().getString(R.string.park_clue_1);
                 message2 = getResources().getString(R.string.park_clue_2);
@@ -74,6 +78,7 @@ public class MainMenuActivity extends AppCompatActivity {
                 break;
             case R.id.button4:
                 checkBox = (CheckBox) findViewById(R.id.checkbox4);
+                mapName = getResources().getString(R.string.mcld);
                 message = getResources().getString(R.string.mcld);
                 message1 = getResources().getString(R.string.mcld_clue_1);
                 message2 = getResources().getString(R.string.mcld_clue_2);
@@ -93,6 +98,7 @@ public class MainMenuActivity extends AppCompatActivity {
         extras.putString("clue5_key", message5);
 
         if(checkBox.isChecked()) {
+            mapIntent.putExtra("mapName", mapName);
             startActivity(mapIntent);
         }
         else {
