@@ -193,8 +193,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
         }
 
-        System.out.println("loadLocationsList: size of locationsList is " + locationsList.size());
-
         return locationsList;
     }
 
@@ -203,8 +201,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param locationsList
      */
     public void saveLocationsList(List<Location> locationsList, String name) {
-        System.out.println("saveLocationsList: size of locationsList is " + locationsList.size());
-
         // create a serializable object
         LocationListState state = new LocationListState();
         for(Location location : locationsList) {
@@ -214,7 +210,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // save that object to a file
         String filename = name + ".dat";
         System.out.println("saveLocationsList: filename is " + filename);
-
         try {
             File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
                     filename);
@@ -302,8 +297,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                 0, 0, mLocationListener);
 
-        loadOrStartTimer();
-
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
@@ -312,16 +305,37 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void loadOrStartTimer() {
         // check if we have a file to read the location data from
-        System.out.println("loadOrStartTimer: (class's) mapName is " + mapName);
         String filename = mapName + ".dat";
+        System.out.println("loadOrStartTimer: filename is " + filename);
         File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
         if (locationsListFile.exists()) {
-            System.out.println("\n\nlocations list file exists********************\n\n");
+            // load the existing data if the file exists
             this.mUserPathLocations.clear();
             this.mUserPathLocations.addAll(loadLocationsList(mapName));
-            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
+
+            //TODO refactor below to new function
+            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+            for (Location location : mUserPathLocations) {
+                pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+            for (LatLng latLng : pathCoordinates) {
+                polylineOptions.add(latLng);
+            }
+            mTrackingPath = mMap.addPolyline(polylineOptions);
+            if (mMarker != null) {
+                mMarker.remove();
+            }
+            Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+            LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                    mostRecentLocation.getLongitude());
+            mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                    .title("User's Last Location"));
+
+            //TODO refactor above
+
         } else {
-            System.out.println("\n\nlocations list file does not exist******************\n\n");
             // Initialize the timer if we did not load data from a file
             mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
         }
@@ -341,6 +355,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+
+        loadOrStartTimer();
 
         // Add a marker in bc
         LatLng bc = new LatLng(50, -123);

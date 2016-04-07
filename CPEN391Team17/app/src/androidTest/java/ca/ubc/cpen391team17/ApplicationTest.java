@@ -21,11 +21,6 @@ public class ApplicationTest extends ApplicationTestCase<Application> {
     }
 
     @Test
-    public void exampleTest() {
-        assertEquals(true, true);
-    }
-
-    @Test
     public void emptyListGenerateLocationsStringTest() {
         // empty list of locations
         List<Location> locationsList = new ArrayList<Location>();
