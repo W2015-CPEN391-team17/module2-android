@@ -22,6 +22,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -116,6 +118,9 @@ public class BluetoothActivity extends AppCompatActivity {
 
         locations = (ArrayList<Location>) getIntent().getSerializableExtra("location_list");
         System.out.println(locations);
+
+        TextView message = (TextView) findViewById(R.id.send);
+        message.setVisibility(View.GONE);
 
         // Check if the user has set the necessary permissions to use Bluetooth.
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH)
@@ -295,6 +300,9 @@ public class BluetoothActivity extends AppCompatActivity {
         System.out.println("Failed sockets");}
 
         System.out.println("Not blocking");
+
+        TextView message = (TextView) findViewById(R.id.send);
+        message.setVisibility(View.VISIBLE);
 
         Thread workerThread = new Thread(new Runnable() {
             public void run() {

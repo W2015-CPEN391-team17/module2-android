@@ -10,6 +10,21 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ca.ubc.cpen391team17.Bluetooth">
 
+
+    <ListView
+        android:id="@+id/listView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#FFFFFF"
+        android:padding="0dp">
+    </ListView>
+    <ListView
+        android:id="@+id/listView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="#ffffff"
+        android:padding="0dp">
+    </ListView>
     <TextView
         android:id="@+id/send"
         android:layout_width="wrap_content"
@@ -18,21 +33,5 @@
         android:layout_marginBottom="60dp"
         android:text="Ready to send path to device."
         android:layout_alignParentBottom="true"/>
-    <ListView
-        android:id="@+id/listView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:padding="0dp"
-        android:layout_above="@id/send">
-    </ListView>
-    <ListView
-        android:id="@+id/listView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#ffffff"
-        android:padding="0dp"
-        android:layout_above="@id/send">
-    </ListView>
 
 </RelativeLayout>
