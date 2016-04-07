@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.Manifest;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.TaskStackBuilder;
@@ -13,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.design.widget.Snackbar;
@@ -310,6 +312,9 @@ public class BluetoothActivity extends AppCompatActivity {
                         .setContentTitle("Ready for Upload")
                         .setContentText("You can now send your path to the geocache.");
 
+        mBuilder.setPriority(Notification.PRIORITY_HIGH);
+        if(Build.VERSION.SDK_INT >= 21) mBuilder.setVibrate(new long[0]);
+
         Intent resultIntent = new Intent(this, BluetoothActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -385,6 +390,9 @@ public class BluetoothActivity extends AppCompatActivity {
 
 
         closeConnection(); // Disconnect after writing
+
+        mNotificationManager.cancel(mID);
+
     }
 
     /**
