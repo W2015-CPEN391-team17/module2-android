@@ -1,6 +1,7 @@
 package ca.ubc.cpen391team17;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,7 +22,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 public class HintsActivity extends AppCompatActivity {
-
+    private Context context;
     String message = " ";
     /* Opens MapActivity*/
     public void openMap1(View view) {
@@ -47,12 +49,14 @@ public class HintsActivity extends AppCompatActivity {
         fab2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new AlertDialog.Builder(HintsActivity.this)
+                context = getApplicationContext();
+                new AlertDialog.Builder(context)
                         .setTitle("Delete Path")
                         .setMessage("Are you sure you want to delete the current path?")
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 deleteLocationData();
+                                Toast toast = Toast.makeText(context, "Path deleted.", Toast.LENGTH_LONG);
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
