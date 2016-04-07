@@ -54,7 +54,6 @@ public class HintsActivity extends AppCompatActivity {
                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 deleteLocationData();
-                                Toast toast = Toast.makeText(HintsActivity.this, "Path deleted.", Toast.LENGTH_LONG);
                             }
                         })
                         .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
