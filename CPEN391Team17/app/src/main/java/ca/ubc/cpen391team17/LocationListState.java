@@ -30,8 +30,8 @@ public class LocationListState implements Serializable {
 
     public Location remove() {
         Location location = new Location("");
-        double lat = this.latList.remove(this.latList.size()-1);
-        double lon = this.lonList.remove(this.lonList.size() - 1);
+        double lat = this.latList.remove(0);
+        double lon = this.lonList.remove(0);
         this.size = this.latList.size();
         location.setLatitude(lat);
         location.setLongitude(lon);

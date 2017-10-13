@@ -54,7 +54,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean mBool;
     //name of map
-    String mapName = "";
+    private String mapName = "";
+
+    // whether the map's checkbox was checked in the main menu
+    private boolean checked = false;
+
+    // is it the first useful data?
+    private boolean firstUseful = false;
 
     // Define a tag used for debugging
     private static final String MA_TAG = "MapsActivity";
@@ -127,6 +133,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             mostRecentLocation.getLongitude());
                     mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
                             .title("User's Last Location"));
+                    if (!firstUseful) {
+                        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                                new CameraPosition.Builder()
+                                        .target(newMarkerPosition)
+                                        .zoom(17)
+                                        .build()));
+                        firstUseful = true;
+                    }
                 } else {
                     Log.w(MA_TAG, "mRunnable.run: mMap == null");
                 }
@@ -194,8 +208,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             e.printStackTrace();
         }
 
-        System.out.println("loadLocationsList: size of locationsList is " + locationsList.size());
-
         return locationsList;
     }
 
@@ -204,8 +216,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param locationsList
      */
     public void saveLocationsList(List<Location> locationsList, String name) {
-        System.out.println("saveLocationsList: size of locationsList is " + locationsList.size());
-
         // create a serializable object
         LocationListState state = new LocationListState();
         for(Location location : locationsList) {
@@ -215,7 +225,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // save that object to a file
         String filename = name + ".dat";
         System.out.println("saveLocationsList: filename is " + filename);
-
         try {
             File locationsListStateFile = new File(this.getApplicationContext().getFilesDir(),
                     filename);
@@ -242,7 +251,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         mapName = intent.getStringExtra("mapName");
-        mBool = intent.getBooleanExtra("checked", false);
+
+        checked = intent.getBooleanExtra("checked", false);
+
 
         // Initialize and show the floating action button
         FloatingActionButton fab = new FloatingActionButton(this);
@@ -295,16 +306,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MA_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
+        else {
+            // Permission has already been granted; start retrieving the user's location
+            mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                    0, 0, mLocationListener);
+        }
         if (mLocationManager == null) {
             // The app is essentially useless without being able to get the user's
             // location. For now, we just finish (quit) the app.
             this.finishAffinity();
         }
-        // Permission has already been granted; start retrieving the user's location
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                0, 0, mLocationListener);
-
-        loadOrStartTimer();
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -314,17 +325,44 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void loadOrStartTimer() {
         // check if we have a file to read the location data from
-        System.out.println("loadOrStartTimer: (class's) mapName is " + mapName);
         String filename = mapName + ".dat";
+        System.out.println("loadOrStartTimer: filename is " + filename);
         File locationsListFile = new File(this.getApplicationContext().getFilesDir(), filename);
         if (locationsListFile.exists()) {
-            System.out.println("\n\nlocations list file exists********************\n\n");
+            // load the existing data if the file exists
             this.mUserPathLocations.clear();
             this.mUserPathLocations.addAll(loadLocationsList(mapName));
-            mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
-        } else {
-            System.out.println("\n\nlocations list file does not exist******************\n\n");
-            // Initialize the timer if we did not load data from a file
+
+            // Convert the locations in mUserPathLocations to create a PolyLine path on the map
+            ArrayList<LatLng> pathCoordinates = new ArrayList<>();
+            for (Location location : mUserPathLocations) {
+                pathCoordinates.add(new LatLng(location.getLatitude(), location.getLongitude()));
+            }
+            PolylineOptions polylineOptions = new PolylineOptions().geodesic(true).color(Color.RED);
+            for (LatLng latLng : pathCoordinates) {
+                polylineOptions.add(latLng);
+            }
+            mTrackingPath = mMap.addPolyline(polylineOptions);
+            if (mMarker != null) {
+                mMarker.remove();
+            }
+
+            if (checked && mUserPathLocations.size() > 0) {
+                Location mostRecentLocation = mUserPathLocations.get(mUserPathLocations.size() - 1);
+                LatLng newMarkerPosition = new LatLng(mostRecentLocation.getLatitude(),
+                        mostRecentLocation.getLongitude());
+                mMarker = mMap.addMarker(new MarkerOptions().position(newMarkerPosition)
+                        .title("User's Last Location"));
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                        new CameraPosition.Builder()
+                                .target(newMarkerPosition)
+                                .zoom(17)
+                                .build()));
+            }
+
+        }
+
+        if (!checked) {
             mTimer.scheduleAtFixedRate(mTimerTask, 0, M_TIMER_PERIOD);
         }
     }
@@ -344,14 +382,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         googleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
+        loadOrStartTimer();
+
         // Add a marker in bc
-        LatLng bc = new LatLng(50, -123);
-        mMarker = mMap.addMarker(new MarkerOptions().position(bc).title("User's Last Location"));
-        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                new CameraPosition.Builder()
-                        .target(bc)
-                        .zoom(17)
-                        .build()));
+        if (!checked) {
+            LatLng bc = new LatLng(50, -123);
+            mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition.Builder()
+                            .target(bc)
+                            .zoom(0)
+                            .build()));
+        }
     }
 
     /**
@@ -371,6 +412,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_upload:
+                mTimerTask.cancel();
+                mTimer.purge();
+
                 // User chose the "Upload" item.
                 // Start the Bluetooth Activity.
                 Intent intent = new Intent(this, BluetoothActivity.class);
@@ -446,8 +490,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     try {
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
                                 0, 0, mLocationListener);
-                        // Initialize the timer
-                        loadOrStartTimer();
                     } catch (SecurityException e) {
                         // The app is essentially useless without being able to get the user's
                         // location. For now, we just finish (quit) the app.
@@ -477,24 +519,27 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public void onBackPressed() {
         super.onBackPressed();
 
+        mTimerTask.cancel();
+        mTimer.purge();
+
         // Finish the activity
         finish();
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
-
         // Manually destroy async objects
         mTimer.cancel();
         mTimer.purge();
+
+        super.onDestroy();
+
         mHandler.removeCallbacks(mRunnable);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
         saveLocationsList(this.mUserPathLocations, mapName);
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
@@ -511,8 +556,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         );
         AppIndex.AppIndexApi.end(client, viewAction);
 
-        mTimerTask.cancel();
-        mTimer.purge();
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
         client.disconnect();

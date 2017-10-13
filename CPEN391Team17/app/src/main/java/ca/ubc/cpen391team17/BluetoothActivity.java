@@ -199,7 +199,7 @@ public class BluetoothActivity extends AppCompatActivity {
                     //Toast.makeText(context, "Discovery Started", Toast.LENGTH_LONG).show();
                 }
                 else if (action.equals(BluetoothAdapter.ACTION_DISCOVERY_FINISHED) ) {
-                    Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "Discovery Finished", Toast.LENGTH_LONG).show();
                 }
             }
         };
@@ -366,36 +366,6 @@ public class BluetoothActivity extends AppCompatActivity {
             System.out.println(e.toString());
         }
 
-        //WriteToBTDevice(generateLocationsString());
-
-        //Thread workerThread = new Thread(new Runnable() {
-          //  public void run() {
-//        System.out.println("In thread");
-//        WriteToBTDevice(generateLocationsString(this.locations));
-            //}
-        //});
-
-        //workerThread.start();
-        //try {
-          //  workerThread.join();
-        //}catch (InterruptedException e){
-          //  System.out.println(e.toString())1;
-        //}
-
-//        NotificationCompat.Builder mBuilder2 =
-//                new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.ic_action_upload)
-//                        .setContentTitle("Upload complete.")
-//                        .setContentText("Your path is now on on the geocache.")
-//                        .setAutoCancel(true);
-//
-//        mBuilder2.setPriority(Notification.PRIORITY_HIGH);
-//        if(Build.VERSION.SDK_INT >= 21) mBuilder2.setVibrate(new long[0]);
-//
-//        mNotificationManager.notify(mID, mBuilder.build());
-
-        Toast.makeText(context, "Bluetooth done", Toast.LENGTH_LONG).show();
-
         closeConnection(); // Disconnect after writing
 
     }
@@ -504,6 +474,8 @@ public class BluetoothActivity extends AppCompatActivity {
     // Called when the back button is pressed.
     @Override
     public void onBackPressed() {
+        mReceiver.abortBroadcast();
+        mBluetoothAdapter.cancelDiscovery();
         super.onBackPressed();
         finish();
     }
